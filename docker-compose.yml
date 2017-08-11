@@ -1,0 +1,37 @@
+version: '3'
+services:
+  db:
+    image: postgres
+  proxy:
+    image: jwilder/nginx-proxy
+    ports: ["3000:80"]
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./bodysize.nginx.conf:/etc/nginx/conf.d/bodysize.conf:ro
+    links:
+      - maze-www
+      - maze-api
+      - maze-put
+  maze-api:
+    build: ./maze-api
+    command: bundle exec rails s -p 80 -b 0.0.0.0
+    ports: ["80"]
+    volumes: ["./maze-api:/app"]
+    depends_on: ["db"]
+    environment:
+      - VIRTUAL_HOST=api.maze.localhost
+    env_file: ./secrets/cloud.env
+  maze-www:
+    image: nginx
+    ports: ["80"]
+    volumes: ["./maze-www:/usr/share/nginx/html:ro"]
+    environment:
+      - VIRTUAL_HOST=www.maze.localhost
+  maze-put:
+    build: ./maze-put
+    ports: ["80"]
+    environment:
+      - VIRTUAL_HOST=put.maze.localhost
+    env_file: ./secrets/cloud.env
+    links:
+      - maze-api

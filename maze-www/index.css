@@ -1,0 +1,214 @@
+@import url('https://fonts.googleapis.com/css?family=Source+Code+Pro:400,600,700|Source+Sans+Pro:400,400i,700');
+
+html, body, button, select, input {
+  font: 22px/32px "source code pro";
+}
+
+@media (max-width: 320px) {
+  html, body, button, select, input {
+    font-size: 14px;
+    line-height: 20px;
+  }
+}
+
+.vis-button {
+  font: 0.75rem "source code pro" !important;
+}
+
+.vis-manipulation {
+  border: 0 !important;
+}
+
+.vis-separator-line {
+  display: none !important;
+}
+
+html, body, #app {
+  margin: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+body {
+  background: #eee;
+}
+
+section > h1 {
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  text-transform: uppercase;
+  line-height: calc(2 * 32px);
+  opacity: 0.7;
+  font-weight: normal;
+}
+
+.spinner,
+.spinner:after {
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+}
+
+.spinner {
+  font-size: .5rem;
+  position: relative;
+  border-top: 1.1em solid rgba(255, 255, 255, 0.2);
+  border-right: 1.1em solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1.1em solid rgba(255, 255, 255, 0.2);
+  border-left: 1.1em solid black;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-animation: load8 1.8s infinite linear;
+  animation: load8 1.8s infinite linear;
+  margin: 2rem;
+}
+
+@-webkit-keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+div.centered {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-table td:first-child {
+  text-align: right;
+}
+
+.upload-table td {
+  padding-right: 1rem;
+}
+
+.clip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.clips {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+section {
+  border: 2px solid #ccc;
+  border-width: 2px 0;
+  padding: 0 1rem 1rem;
+  background: white;
+  margin: 1rem 0;
+  box-shadow: 3px 3px 20px rgba(0, 0, 0, 0.1);
+}
+
+#app > .dialog {
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+.dialog section {
+  border-width: 2px;
+}
+
+.button, select, input {
+  border: 1px solid #999;
+  cursor: pointer;
+  padding: .25rem .5rem;
+  background: rgba(0, 0, 0, 0.02);
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+.button {
+  background: rgba(0, 255, 0, 0.05);
+  border-width: 2px;
+}
+
+video {
+  max-width: 100%;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form > * {
+  margin-bottom: .5rem;
+  margin-right: 0;
+}
+
+form > *:last-child {
+  margin-bottom: 0;
+}
+
+input[type=radio][name=clip] {
+  display: none;
+}
+
+label:not(.active) .clip {
+  border: 2px solid transparent;
+  opacity: 0.7;
+}
+
+label.active .clip {
+  border: 2px solid yellow;
+}
+
+.spot-menu {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.9);
+  color: ivory;
+  border: 2px solid yellow;
+  border-radius: .25rem;
+  width: 16rem;
+  padding: .5rem;
+}
+
+.spot-menu center {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.game {
+  position: relative;
+  min-height: 100vh;
+  min-width: 100vw;
+  margin: 0 auto;
+}
+
+.game video {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translateX(-50%) translateY(-50%);
+}
