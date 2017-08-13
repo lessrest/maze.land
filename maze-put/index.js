@@ -3,9 +3,9 @@ let http = require("http")
 let util = require("util")
 let exec = util.promisify(require("child_process").execFile)
 let yell = console.log.bind(console)
-let fs = require("fs")
 
 let aws = require("aws-sdk")
+let fs = require("fs")
 let s3 = new aws.S3({
   apiVersion: "2006-03-01",
   params: {
@@ -18,11 +18,11 @@ function post ({ host, path, json }) {
     let body = JSON.stringify(json)
     let req = http.request({
       hostname: host,
-      port: 80,
-      path: path,
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+      port:     80,
+      path:     path,
+      method:   "POST",
+      headers:  {
+        "Content-Type":  "application/json",
         "Content-Length": body.length
       },
     }, ({ statusCode }) => {
@@ -44,62 +44,75 @@ async function sha256sum (file) {
 }
 
 async function handle (req, res) {
-  let path = `${req.method} ${req.url}`
-  yell(`Request: ${path}`)
-  if (path == "OPTIONS /") {
-    res.writeHead(200, {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST",
-    })
-    res.end()
-  } else if (path == "POST /") {
+  let action = `${req.method} ${req.url}`
+  yell(`Request: ${action}`)
+  
+  try {
+    if (action == "OPTIONS /")
+      await cors(res)
+    else if (action == "POST /")
+      await work(req, res)
+    else throw "nope"
+    
+  } catch (e) {
+    yell(e); res.writeHead(500); res.end()
+  }
+}
+
+async function cors (res) {
+  res.writeHead(200, {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST",
+  })
+  res.end()
+}
+
+let parseForm = req => {
+  return new Promise((ok, no) => {
     let x = new form.IncomingForm()
     x.maxFieldsSize = process.env["MAX_UPLOAD_SIZE"]
-    x.parse(req, async (error, fields, files) => {
-      try {
-        let hashes = []
-        if (error) {
-          throw error
-        } else {
-          for (let file of Object.values(files)) {
-            let hash = await sha256sum(file)
-            hashes.push(hash)
-            yell(`Uploading ${hash}`)
-            await s3.putObject({
-              Key: `original/${hash}`,
-              ACL: "public-read",
-              Body: fs.createReadStream(file.path),
-              ContentType: "application/octet-stream",
-            }).promise()
-            yell(`Registering ${hash}`)
-            await post({
-              host: "maze-api",
-              path: "/clips",
-              json: { hash }
-            })
-            yell(`Done with ${hash}`)
-          }
-        }
-        res.writeHead(200, {
-          "content-type": "application/json"
-        })
-        res.end(JSON.stringify(hashes))
-      } catch (e) {
-        yell(e)
-        res.writeHead(500)
-        res.end()
-      }
+    x.parse(req, (error, fields, files) => {
+      if (error) no(error)
+      else       ok({ fields, files })
     })
-  } else {
-    res.writeHead(404, { "content-type": "text/plain" })
-    res.end("Nope.\n")
+  })
+}
+
+async function work (req, res) {
+  let hashes = []
+  let { files } = await parseForm(req)
+  
+  for (let file of Object.values(files)) {
+    let hash = await sha256sum(file)
+    hashes.push(hash)
+    
+    yell(`Uploading ${hash} to S3`)
+    await s3.putObject({
+      ContentType: "application/octet-stream",
+      Body:        fs.createReadStream(file.path),
+      Key:         `original/${hash}`,
+      ACL:         "public-read",
+    }).promise()
+    
+    yell(`Registering ${hash} with API`)
+    await post({
+      host: "maze-api",
+      path: "/clips",
+      json: { hash }
+    })
+    
+    yell(`Done with ${hash}`)
   }
+  
+  res.writeHead(200, { "content-type": "application/json" })
+  res.end(JSON.stringify(hashes))
 }
 
 http.createServer((req, res) => {
   handle(req, res)
 }).listen(80)
 
+// Handle Docker Ctrl-C, etc.
 process.on("SIGTERM", () => {
   console.log("Stopping")
   process.exit()

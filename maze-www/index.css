@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css?family=Source+Code+Pro:400,600,700|Source+Sans+Pro:400,400i,700');
+/* @import url('https://fonts.googleapis.com/css?family=Source+Code+Pro:400,600,700|Source+Sans+Pro:400,400i,700'); */
 
 html, body, button, select, input {
-  font: 22px/32px "source code pro";
+  font: 22px/32px mononoki;
 }
 
 @media (max-width: 320px) {

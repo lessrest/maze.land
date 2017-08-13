@@ -1,14 +1,12 @@
 // Settings
 
-const apiHost =
-  document.location.host.replace(/^www\./, "api.")
-const apiRoot =
-  `${document.location.protocol}//${apiHost}`
+let subdomain = x => [
+  document.location.protocol,
+  document.location.host.replace(/^www\./, x),
+].join("//")
 
-const putHost =
-  document.location.host.replace(/^www\./, "put.")
-const putRoot =
-  `${document.location.protocol}//${putHost}`
+const apiRoot = subdomain("api")
+const putRoot = subdomain("put")
 
 // Framework
 
@@ -25,11 +23,11 @@ let push = (x, y) =>
     body: JSON.stringify(y),
   }).then(x => x.json())
 
-let loop = Symbol("loop")
 let yell = (...x) => console.info(...x)
 let wait = (f, x) => setTimeout(f, x)
+let loop = Symbol("loop")
 let plan = x => new Promise(x)
-let meow = x => ReactDOM.render(x, document.querySelector("#app"))
+let draw = x => ReactDOM.render(x, document.querySelector("#app"))
 let doze = x => plan(f => wait(() => f(), x * 1000))
 let pick = x => Promise.race(x.map(x => x.vow))
 let nest = f => {
@@ -68,12 +66,12 @@ let progress = stream => new Promise(resolve => stream.resolve = resolve)
 // Maze app
 
 let APP = async function() {
-  meow(Loading("Loading mazes..."))
+  draw(Spin("Loading mazes..."))
   let mazes = await pull("/mazes")
   await doze(0.5)
-  meow(Loading("Loading clips..."))
+  draw(Spin("Loading clips..."))
   let clips = await pull("/clips")
-  meow(Loading("Loading doors..."))
+  draw(Spin("Loading doors..."))
   let doors = await pull("/doors")
   await doze(0.5)
   await OVERVIEW({ mazes, clips, doors })
@@ -97,10 +95,10 @@ let OVERVIEW = async function ({
           if (ratio === 1) {
             break
           } else {
-            meow(Loading(`Uploading ${file.name}: ${(ratio * 100).toFixed(2)}...`))
+            draw(Spin(`Uploading ${file.name}: ${(ratio * 100).toFixed(2)}...`))
           }
         }
-        meow(Splash("Done!"))
+        draw(Splash("Done!"))
         await doze(0.5)
       }
     }
@@ -108,7 +106,7 @@ let OVERVIEW = async function ({
 
   let REFRESH_CLIPS = nest(
     async function () {
-      meow(Loading("Refreshing clips..."))
+      draw(Spin("Refreshing clips..."))
       clips = await pull("/clips")
       await doze(0.5)
     }
@@ -132,17 +130,17 @@ let OVERVIEW = async function ({
         async function ({
           maze, clip
         }) {
-          meow(Loading("Making new spot..."))
+          draw(Spin("Making new spot..."))
           await doze(0.5)
           await push(`/spots`, { maze, clip, name })
-          meow(Loading("Refreshing mazes..."))
+          draw(Spin("Refreshing mazes..."))
           mazes = await pull("/mazes")
         }
       )
 
       let CANCEL = nest(
         async function () {
-          meow(Splash("Cancelled."))
+          draw(Splash("Cancelled."))
           await doze(0.5)
           callback(null)
         }
@@ -172,7 +170,7 @@ let OVERVIEW = async function ({
 
       let $maze
 
-      meow(
+      draw(
         <div className="dialog">
           <section>
             <h1>New spot</h1>
@@ -194,17 +192,19 @@ let OVERVIEW = async function ({
               </select>
               <div className="clips">
                 {
-                  clips.map(x =>
-                    <label className={x.id === clip.id ? "active" : ""}>
-                      <input
-                        type="radio"
-                        name="clip"
-                        value={x.id}
-                        checked={x.id === clip.id}
-                        onChange={e => SELECT_CLIP(e.target.value)} />
-                      {Clip(x)}
-                    </label>
-                  )
+                  clips.length > 0
+                    ? clips.map(x =>
+                        <label className={x.id === clip.id ? "active" : ""}>
+                          <input
+                            type="radio"
+                            name="clip"
+                            value={x.id}
+                            checked={x.id === clip.id}
+                            onChange={e => SELECT_CLIP(e.target.value)} />
+                          {Clip(x)}
+                        </label>
+                      )
+                    : <span>You have no clips yet.</span>
                 }
               </div>
               <input
@@ -251,9 +251,9 @@ let OVERVIEW = async function ({
     async function ({
       src, dst,
     }) {
-      meow(Loading("Saving edge..."))
+      draw(Spin("Saving edge..."))
       await push("/doors", { src: src.id, dst: dst.id })
-      meow(Loading("Refreshing doors..."))
+      draw(Spin("Refreshing doors..."))
       doors = await pull("/doors")
     }
   )
@@ -263,7 +263,7 @@ let OVERVIEW = async function ({
       node, callback, maze
     }) {
       let spot = get(maze.spots, node.id)
-      meow(
+      draw(
         <div className="game">
           <video
             autoPlay
@@ -392,8 +392,7 @@ let OVERVIEW = async function ({
              style={{ width: "8rem" }}
              src={`${apiRoot}/blobs/${jpegs(clip.clipfiles)[0].sha2}`}
             />
-          : `${name}`
-
+          : null
       }
     </div>
   )
@@ -401,13 +400,17 @@ let OVERVIEW = async function ({
   let $files
 
   // Render the overview
-  meow(
+  draw(
     <div>
       {mazes.map(Maze)}
       <section>
         <h1>Clips</h1>
         <div className="clips">
-          {clips.map(Clip)}
+          {
+            clips.length > 0
+              ? clips.map(Clip)
+              : <span>You have no clips yet.</span>
+          }
         </div>
         <form>
           <label className="button">
@@ -430,14 +433,17 @@ let OVERVIEW = async function ({
           </span>
         </form>
       </section>
-      <div style={{ position: "relative" }}>
-        <div ref={x => blender(x)}/>
-        <span style={{
-          position: "absolute", top: "50%", left: "40%", fontSize: 40, fontWeight: "bold", textShadow: "0 0 50px #ffffff"
-        }}>
-          LASTADIJA
-        </span>
-      </div>
+      {
+        true &&
+          <div style={{ position: "relative" }}>
+            <div ref={x => blender(x)}/>
+            <span style={{
+              position: "absolute", top: "50%", left: "40%", fontSize: 40, fontWeight: "bold", textShadow: "0 0 50px #ffffff"
+            }}>
+              LASTADIJA
+            </span>
+          </div>
+      }
     </div>
   )
 
@@ -451,7 +457,7 @@ let OVERVIEW = async function ({
   ])
 
   // Show "Cool!" for a while
-  meow(Splash("Cool!"))
+  draw(Splash("Cool!"))
   await doze(0.5)
 
   // Restart the overview
@@ -463,7 +469,7 @@ let Splash = x =>
     {x}
   </div>
 
-let Loading = x =>
+let Spin = x =>
   <div className="centered">
     <div className="spinner"></div>
     {x}
