@@ -1,7 +1,7 @@
 abstract Maze = {
   flags startcat = Line;
   cat
-    Spot; Door; Item; Fact; Line; Prop;
+    Spot; Door; Item; Fact; Line; Prop; Fail;
   fun
     North, South, West, East : Door;
 
@@ -16,4 +16,6 @@ abstract Maze = {
 
     PropItem : Prop -> Item -> Item;
     FactLine : Fact -> Line;
+
+    DoorConflict : Spot -> Spot -> Door -> Door -> Fail;
 }

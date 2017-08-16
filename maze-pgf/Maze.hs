@@ -10,7 +10,7 @@ class Gf a where
   gf :: a -> PGF.Tree
   fg :: PGF.Tree -> a
 
-newtype GString = GString String  deriving Show
+newtype GString = GString String  deriving (Show, Eq, Ord)
 
 instance Gf GString where
   gf (GString x) = mkStr x
@@ -19,7 +19,7 @@ instance Gf GString where
       Just x  ->  GString x
       Nothing -> error ("no GString " ++ show t)
 
-newtype GInt = GInt Int  deriving Show
+newtype GInt = GInt Int  deriving (Show, Eq, Ord)
 
 instance Gf GInt where
   gf (GInt x) = mkInt x
@@ -28,7 +28,7 @@ instance Gf GInt where
       Just x  ->  GInt x
       Nothing -> error ("no GInt " ++ show t)
 
-newtype GFloat = GFloat Double  deriving Show
+newtype GFloat = GFloat Double  deriving (Show, Eq, Ord)
 
 instance Gf GFloat where
   gf (GFloat x) = mkDouble x
@@ -46,26 +46,29 @@ data GDoor =
  | GNorth 
  | GSouth 
  | GWest 
-  deriving Show
+  deriving (Show, Eq, Ord)
 
 data GFact =
    GAnXIsAtY GItem GSpot 
  | GYIsDoorFromX GSpot GDoor GSpot 
-  deriving Show
+  deriving (Show, Eq, Ord)
+
+data GFail = GDoorConflict GSpot GSpot GDoor GDoor 
+  deriving (Show, Eq, Ord)
 
 data GItem =
    GCat 
  | GDog 
  | GPropItem GProp GItem 
-  deriving Show
+  deriving (Show, Eq, Ord)
 
 data GLine = GFactLine GFact 
-  deriving Show
+  deriving (Show, Eq, Ord)
 
 data GProp =
    GLarge 
  | GSmall 
-  deriving Show
+  deriving (Show, Eq, Ord)
 
 data GSpot =
    GMarket 
@@ -73,7 +76,7 @@ data GSpot =
  | GT17 
  | GTerapija 
  | GUniversity 
-  deriving Show
+  deriving (Show, Eq, Ord)
 
 
 instance Gf GDoor where
@@ -103,6 +106,16 @@ instance Gf GFact where
 
 
       _ -> error ("no Fact " ++ show t)
+
+instance Gf GFail where
+  gf (GDoorConflict x1 x2 x3 x4) = mkApp (mkCId "DoorConflict") [gf x1, gf x2, gf x3, gf x4]
+
+  fg t =
+    case unApp t of
+      Just (i,[x1,x2,x3,x4]) | i == mkCId "DoorConflict" -> GDoorConflict (fg x1) (fg x2) (fg x3) (fg x4)
+
+
+      _ -> error ("no Fail " ++ show t)
 
 instance Gf GItem where
   gf GCat = mkApp (mkCId "Cat") []

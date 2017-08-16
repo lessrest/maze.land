@@ -9,6 +9,7 @@ in {
     Door = Prep;
     Line = Utt;
     Prop = AP;
+    Fail = Utt;
   lin
     FactLine x = mkUtt x;
     PropItem prop item = mkCN prop item;
@@ -35,4 +36,12 @@ in {
 
     AnXIsAtY item spot
       = mkCl (mkNP a_Det item) (ConstructorsLav.mkAdv in_Prep spot);
+
+    DoorConflict src dst fst snd
+      -- "T17 is both north of Terapija and south of Terapija."
+      = mkUtt
+         (mkCl src
+           (ConstructorsLav.mkAdv both7and_DConj
+             (ConstructorsLav.mkAdv fst dst)
+             (ConstructorsLav.mkAdv snd dst)));
 }

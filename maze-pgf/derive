@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -xe
+sed -i 's/deriving Show/deriving (Show, Eq, Ord)/' Maze.hs
