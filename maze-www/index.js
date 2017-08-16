@@ -5,8 +5,19 @@ let subdomain = x => [
   document.location.host.replace(/^www\./, x),
 ].join("//")
 
-const apiRoot = subdomain("api")
-const putRoot = subdomain("put")
+const apiRoot = subdomain("api.")
+const putRoot = subdomain("put.")
+const pgfRoot = subdomain("pgf.")
+const cdn = "https://d2ayo97fkylvct.cloudfront.net"
+
+const pgf = {
+  completions: xs => {
+    let x = encodeURIComponent(xs.join(" "))
+    return fetch(
+      `${pgfRoot}/Maze.pgf?command=complete&from=MazeEng&input=${x}+`
+    ).then(x => x.json()).then(x => x[0].completions)
+  }
+}
 
 // Framework
 
@@ -71,6 +82,7 @@ let APP = async function() {
   await doze(0.5)
   draw(Spin("Loading clips..."))
   let clips = await pull("/clips")
+  yell(clips)
   draw(Spin("Loading doors..."))
   let doors = await pull("/doors")
   await doze(0.5)
@@ -156,14 +168,10 @@ let OVERVIEW = async function ({
       let Clip = clip => (
         <div className="clip">
           {
-            jpegs(clip.clipfiles).length
-              ?
-                <img
-                 style={{ width: "8rem" }}
-                 src={`${apiRoot}/blobs/${jpegs(clip.clipfiles)[0].sha2}`}
-                />
-              : `${name}`
-
+            <img
+               style={{ width: "8rem" }}
+               src={thumbnailUrl(clip)}
+            />
           }
         </div>
       )
@@ -217,7 +225,7 @@ let OVERVIEW = async function ({
                 <video
                   autoPlay
                   loop
-                  src={videoSource(clip.clipfiles)}
+                  src={videoSource(clip)}
                 />
                 { Menu({ name }) }
               </div>
@@ -268,12 +276,61 @@ let OVERVIEW = async function ({
           <video
             autoPlay
             loop
-            src={videoSource(spot.clip.clipfiles)}
+            src={videoSource(spot.clip)}
           />
           { Menu({ name: spot.name }) }
         </div>
       )
       await doze(3)
+    }
+  )
+
+  let NEW_MAZE = nest(
+    async function () {
+      let $name
+
+      let MAKE = nest(
+        async function ({ name }) {
+          await push("/mazes", { name })
+        }
+      )
+
+      let CANCEL = nest(
+        async function () {}
+      )
+
+      draw(
+        <div className="dialog">
+          <section>
+            <h1>New maze</h1>
+            <form
+              onSubmit={e => {
+                e.preventDefault()
+                MAKE({ name: $name.value })
+              }}
+            >
+              <input
+                ref={x => $name = x}
+                placeholder="Name of maze..."
+              />
+              <span
+                className="button"
+                onClick={() => MAKE({ name: $name.value })}
+              >
+                Make new maze
+              </span>
+              <span
+                className="button"
+                onClick={CANCEL}
+              >
+                Cancel
+              </span>
+            </form>
+          </section>
+        </div>
+      )
+
+      await pick([MAKE, CANCEL])
     }
   )
 
@@ -332,12 +389,12 @@ let OVERVIEW = async function ({
           nodes: {
             font: {
               size: 16,
-              face: "source code pro",
+              face: "fantasque sans mono",
               multi: "md",
             },
             shape: "circularImage",
-            mass: 2.6,
-            size: 60,
+            mass: 5,
+            size: 50,
           },
           edges: {
             arrows: { to: { enabled: true } }
@@ -386,13 +443,10 @@ let OVERVIEW = async function ({
   let Clip = clip => (
     <div className="clip">
       {
-        jpegs(clip.clipfiles).length
-          ?
-            <img
-             style={{ width: "8rem" }}
-             src={`${apiRoot}/blobs/${jpegs(clip.clipfiles)[0].sha2}`}
-            />
-          : null
+        <img
+           style={{ width: "8rem" }}
+           src={thumbnailUrl(clip)}
+        />
       }
     </div>
   )
@@ -403,6 +457,16 @@ let OVERVIEW = async function ({
   draw(
     <div>
       {mazes.map(Maze)}
+      <span
+        className="button"
+        onClick={NEW_MAZE}>
+        New maze
+      </span>
+      <span
+        className="button"
+        onClick={() => PLAY_WITH_GRAMMAR({})}>
+        Play with grammar
+      </span>
       <section>
         <h1>Clips</h1>
         <div className="clips">
@@ -434,7 +498,7 @@ let OVERVIEW = async function ({
         </form>
       </section>
       {
-        true &&
+        false &&
           <div style={{ position: "relative" }}>
             <div ref={x => blender(x)}/>
             <span style={{
@@ -449,11 +513,13 @@ let OVERVIEW = async function ({
 
   // Wait for any of the nested actions
   await pick([
+    NEW_MAZE,
     UPLOAD_CLIPS,
     REFRESH_CLIPS,
     ADD_EDGE,
     ADD_NODE,
     ENTER_SPOT,
+    PLAY_WITH_GRAMMAR,
   ])
 
   // Show "Cool!" for a while
@@ -477,11 +543,11 @@ let Spin = x =>
 
 let jpegs = xs => xs.filter(x => x.kind == "JPEG")
 
-let videoSource = xs =>
-  `${apiRoot}/blobs/${xs.filter(x => x.kind == "MP4 H264 Vorbis")[0].sha2}`
+let videoSource = x =>
+  `${cdn}/${x.name}/1080p-vp9/clip.webm`
 
 let thumbnailUrl = x =>
-  `${apiRoot}/blobs/${jpegs(x.clipfiles)[0].sha2}`
+  `${cdn}/${x.name}/480p-vp9/thumbnail-00002.jpg`
 
 // Blender stuff
 
@@ -561,3 +627,60 @@ let blender = root => {
     })
   })
 }
+
+var grammar = Maze
+let MazeEng = Maze.concretes.MazeEng
+
+let uniq = xs => [...new Set(xs)]
+
+let tree = async xs => {
+  let next = await pgf.completions(xs)
+  let done = next.length == 0
+  return { done, next }
+}
+
+let capitalize = s => s.charAt(0).toUpperCase() + s.slice(1)
+
+let PLAY_WITH_GRAMMAR = nest(
+  async function ({
+    prefix = []
+  }) {
+    let { done, next } = await tree(prefix)
+    let OK = nest(async () => {})
+    let APPEND = nest(
+      async function (x) {
+        await PLAY_WITH_GRAMMAR({ prefix: [...prefix, x] })
+      }
+    )
+
+    let CLEAR = nest(async () => await PLAY_WITH_GRAMMAR({}))
+
+    draw(
+      <div className="dialog">
+        <section>
+          <h1>Grammar Playground</h1>
+          <div>"{capitalize(prefix.join(' '))}{done ? '.' : "..."}"</div>
+          <ul className="words">
+            {
+              next.map(x =>
+                <li
+                  className="button"
+                  onClick={() => APPEND(x)}>
+                  {x}
+                </li>
+              )
+            }
+          </ul>
+          <span className="button" onClick={CLEAR}>
+            Reset sentence
+          </span>
+          <span className="button" onClick={OK}>
+            Exit
+          </span>
+        </section>
+      </div>
+    )
+
+    await pick([OK, APPEND, CLEAR])
+  }
+)

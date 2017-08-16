@@ -35,3 +35,9 @@ services:
     env_file: ./secrets/cloud.env
     links:
       - maze-api
+  maze-pgf:
+    build: ./maze-pgf
+    ports: ["80"]
+    environment:
+      - VIRTUAL_HOST=pgf.maze.localhost
+    volumes: ["./maze-pgf:/grammar:ro"]
