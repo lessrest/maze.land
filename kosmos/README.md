@@ -1,28 +1,70 @@
 # Kosmos
 
-Kosmos implements semantics for a grammar of simple game worlds.
+This project is basically a combination of
 
-Worlds are defined by spots, items, and rules.
+ * the world definition paradigm of Graham Nelson's [Inform 7](http://inform7.com/),
+ * the narrative logic of Chris Martens's [*Programming Interactive Worlds With Linear Logic*](https://www.cs.cmu.edu/~cmartens/thesis/), and
+ * the linguistic technology of [Grammatical Framework](https://www.grammaticalframework.org).
 
-An item can be in a spot, and a rule can apply in a spot.
+It is motivated by a neighborhood exploration project in the "Lastadija"
+area of Rīga, Latvia, undertaken by [Free Riga](https://www.freeriga.lv/).
+
+## World descriptions
+
+Kosmos implements semantics for a grammar of simple game worlds
+defined by *spots*, *items*, and *rules*.
 
 Rules have some different forms:
 
   * "You can pet cats."
   * "In the park, you can pet dogs."
   * "You can take flowers."
-  * "In the market, you can spend four euros to get a big watermelon."
+  * "In the market, you can spend four euros for a big watermelon."
 
-Rules relate conditions ("needs") to consequences ("deeds").
+More explicitly, these examples are understood as:
 
-  * If in a spot where there is a cat,
-    you can pet that cat.
-  * If in the park
-    and if there is a dog in the park,
-    you can pet that dog.
-  * If in a spot where there is a flower,
-    you can move that flower to your pack.
-  * If in the market
+  * "If the current spot has a cat,
+    you can pet that cat."
+  * "If the current spot is the park,
+    and if there is a dog in the current spot,
+    you can pet that dog."
+  * "If the current spot has a flower,
+    you can take that flower."
+  * "If the current spot is the market,
+    and if there is a watermelon in the current spot,
     and if there are four euros in your pack,
-    you can delete those euros
-    and get a watermelon in your pack.
+    you can burn those euros
+    and take the watermelon."
+
+Generally, rules are similar to the "linear implications" of linear logic,
+with inspiration from Chris Martens's 2015 thesis 
+["Programming Interactive Worlds With Linear Logic"](https://www.cs.cmu.edu/~cmartens/thesis/).
+
+Doors are rules for movement, like:
+
+  * "In the market, you can go north to the old town."
+  
+This would be understood as:
+
+  * "If the current spot is the market,
+     you can replace the current spot with the old town."
+     
+## World simulation
+
+The world grammar is defined with [GF](https://www.grammaticalframework.org).
+
+We compile the grammar to a `.pgf` file which contains all the lexical data
+necessary to parse world descriptions.
+
+We also compile the grammar's abstract syntax into Haskell definitions.
+
+The simulator then uses GF's Haskell support library to parse some particular
+world into a set of initial facts and rules.
+
+A loading step expands the rules of the world description into a more explicit
+representation, for example inferring "Y is east of X" from "X is west of Y".
+
+Gameplay then consists of applying rules to an environment of states of affairs,
+according to the player's commands.
+
+Commands, messages, and errors are also parsed and linearized using the world grammar.
