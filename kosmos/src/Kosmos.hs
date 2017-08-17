@@ -1,16 +1,15 @@
 module Kosmos where
 
-import Maze
+import Riga
 import PGF (PGF)
 import qualified PGF as GF
 
 import Data.Set (Set, singleton, fromList)
-import Data.Foldable (foldMap, toList, find)
-import Data.Maybe (fromJust)
+import Data.Foldable (Foldable, foldMap, toList)
 import Control.Monad (msum)
 
 readGrammar :: IO PGF
-readGrammar = GF.readPGF "Maze.pgf"
+readGrammar = GF.readPGF "Riga.pgf"
 
 parseLine :: PGF -> String -> Maybe GLine
 parseLine g s =
@@ -59,18 +58,36 @@ example1 g = example g
   [ "T17 is east of Terapija"
   , "Terapija is north of the central market"
   , "a small cat is in T17"
+  , "many big watermelons are in the central market"
+  , "en stor hund är i Terapija"
   ]
 
 example :: PGF -> [String] -> Set GLine
-example g s =
-  let xs = map (parseLine g) s
-  in fromList . map fromJust $ xs
+example g ss =
+  let xs = map (\x -> (x, parseLine g x)) ss
+  in fromList . map (\(s, x) -> maybe (error s) id x) $ xs
 
 run :: PGF -> Set GLine -> IO ()
 run g x = do
   case expand x of
     Left a -> mapM_ putStrLn (yell g a)
-    Right a -> mapM_ ((>> putStrLn "") . mapM_ putStrLn) (map (yell g) (toList a))
+    Right a -> do
+      yellSet g a
+      putStrLn ""
+      yellSet g (wishes g a GTerapija)
+
+wishes :: PGF -> Set GLine -> GSpot -> Set GWish
+wishes _ xs spot =
+  flip foldMap xs $
+    \case
+      GFactLine (GYIsDoorFromX dst how src)
+        | spot == dst
+          -> singleton (GWalk how src dst)
+      _ -> mempty
+
+yellSet :: (Foldable t, Gf a) => PGF -> t a -> IO ()
+yellSet g xs =
+  mapM_ ((>> putStrLn "") . mapM_ putStrLn) (map (yell g) (toList xs))
 
 main :: IO ()
 main = do

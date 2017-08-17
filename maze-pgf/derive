@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 set -xe
-sed -i 's/deriving Show/deriving (Show, Eq, Ord)/' Maze.hs
+for x in *.hs; do
+  sed -i 's/deriving Show/deriving (Show, Eq, Ord)/' "$x"
+done

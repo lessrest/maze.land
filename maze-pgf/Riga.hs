@@ -1,4 +1,4 @@
-module Maze where
+module Riga where
 
 import PGF hiding (Tree)
 import qualified PGF
@@ -80,10 +80,16 @@ data GProp =
  | GSmall 
   deriving (Show, Eq, Ord)
 
-data GWish = GWalk GDoor GSpot GSpot 
+data GSpot =
+   GMarket 
+ | GSynagogue 
+ | GT17 
+ | GTerapija 
+ | GUniversity 
   deriving (Show, Eq, Ord)
 
-data GSpot
+data GWish = GWalk GDoor GSpot GSpot 
+  deriving (Show, Eq, Ord)
 
 
 instance Gf GDoor where
@@ -180,6 +186,24 @@ instance Gf GProp where
 
       _ -> error ("no Prop " ++ show t)
 
+instance Gf GSpot where
+  gf GMarket = mkApp (mkCId "Market") []
+  gf GSynagogue = mkApp (mkCId "Synagogue") []
+  gf GT17 = mkApp (mkCId "T17") []
+  gf GTerapija = mkApp (mkCId "Terapija") []
+  gf GUniversity = mkApp (mkCId "University") []
+
+  fg t =
+    case unApp t of
+      Just (i,[]) | i == mkCId "Market" -> GMarket 
+      Just (i,[]) | i == mkCId "Synagogue" -> GSynagogue 
+      Just (i,[]) | i == mkCId "T17" -> GT17 
+      Just (i,[]) | i == mkCId "Terapija" -> GTerapija 
+      Just (i,[]) | i == mkCId "University" -> GUniversity 
+
+
+      _ -> error ("no Spot " ++ show t)
+
 instance Gf GWish where
   gf (GWalk x1 x2 x3) = mkApp (mkCId "Walk") [gf x1, gf x2, gf x3]
 
@@ -189,13 +213,5 @@ instance Gf GWish where
 
 
       _ -> error ("no Wish " ++ show t)
-
-instance Show GSpot
-
-instance Gf GSpot where
-  gf _ = undefined
-  fg _ = undefined
-
-
 
 

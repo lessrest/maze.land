@@ -1,3 +1,3 @@
-Maze.hs: Maze.gf MazeEng.gf MazeSwe.gf MazeLav.gf
-	gf -f haskell --make $^
+all:
+	gf -f haskell --make *.gf
 	./derive

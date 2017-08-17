@@ -1,46 +1,15 @@
-concrete MazeEng of Maze =
-  open SyntaxEng, ParadigmsEng, ConstructorsEng
+concrete MazeEng of Maze = MazeI with (Syntax = SyntaxEng)
+  ** open ParadigmsEng, LexiconEng
 in {
-  lincat
-    Spot = NP;
-    Item = CN;
-    Fact = Cl;
-    Door = Prep;
-    Line = Utt;
-    Prop = AP;
-    Fail = Utt;
   lin
-    FactLine x = mkUtt x;
-    PropItem prop item = mkCN prop item;
+    North = mkDoor "north";
+    South = mkDoor "south";
+    West  = mkDoor "west";
+    East  = mkDoor "east";
 
-    North = mkPrep "north of";
-    South = mkPrep "south of";
-    West  = mkPrep "west of";
-    East  = mkPrep "east of";
+  oper mkDoor : Str -> Door;
+  oper mkDoor s = lin Door (mkPrep s);
 
-    Small = mkAP (mkA "small");
-    Large = mkAP (mkA "large");
-
-    Market = mkNP theSg_Det (mkN "central market");
-    T17 = mkNP (mkN "T17");
-    Synagogue = mkNP thePl_Det (mkN "synagogue ruin");
-    Terapija = mkNP (mkN "Terapija");
-    University = mkNP theSg_Det (mkN "university");
-
-    Cat = mkCN (mkN "cat");
-    Dog = mkCN (mkN "dog");
-
-    YIsDoorFromX dst how src
-      = mkCl dst (ConstructorsEng.mkAdv how src);
-
-    AnXIsAtY item spot
-      = mkCl (mkNP a_Det item) (ConstructorsEng.mkAdv in_Prep spot);
-
-    DoorConflict src dst fst snd
-      -- "T17 is both north of Terapija and south of Terapija."
-      = mkUtt
-         (mkCl src
-           (ConstructorsEng.mkAdv both7and_DConj
-             (ConstructorsEng.mkAdv fst dst)
-             (ConstructorsEng.mkAdv snd dst)));
+  lin
+    Watermelon = mkCN (mkN "watermelon");
 }

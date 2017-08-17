@@ -1,47 +1,16 @@
-concrete MazeSwe of Maze =
-  open SyntaxSwe, ParadigmsSwe, ConstructorsSwe
+concrete MazeSwe of Maze = MazeI with (Syntax = SyntaxSwe)
+  ** open ParadigmsSwe, LexiconSwe
 in {
-  lincat
-    Spot = NP;
-    Item = CN;
-    Fact = Cl;
-    Door = Prep;
-    Line = Utt;
-    Prop = AP;
-    Fail = Utt;
+  flags coding = utf8;
   lin
-    FactLine x = mkUtt x;
-    PropItem prop item = mkCN prop item;
+    North = mkDoor "norr";
+    South = mkDoor "söder";
+    West  = mkDoor "väster";
+    East  = mkDoor "öster";
 
-    North = mkPrep "norr om";
-    South = mkPrep "söder om";
-    West  = mkPrep "väst om";
-    East  = mkPrep "öster om";
+  oper mkDoor : Str -> Door;
+  oper mkDoor s = lin Door (mkPrep s);
 
-    Small = mkAP (mkA "liten");
-    Large = mkAP (mkA "stor");
-
-    Market = mkNP theSg_Det (mkN "centralmarknad");
-    T17 = mkNP (mkN "T17");
-    Synagogue = mkNP thePl_Det (mkN "synagog" (mkN "ruin" "ruiner"));
-    Terapija = mkNP (mkN "Terapija");
-    University = mkNP theSg_Det
-      (mkN "universitet" "universitetet" "universitet" "universiteten");
-
-    Cat = mkCN (mkN "katt");
-    Dog = mkCN (mkN "hund");
-
-    YIsDoorFromX dst how src
-      = mkCl dst (ConstructorsSwe.mkAdv how src);
-
-    AnXIsAtY item spot
-      = mkCl (mkNP a_Det item) (ConstructorsSwe.mkAdv in_Prep spot);
-
-    DoorConflict src dst fst snd
-      -- "T17 is both north of Terapija and south of Terapija."
-      = mkUtt
-         (mkCl src
-           (ConstructorsSwe.mkAdv both7and_DConj
-             (ConstructorsSwe.mkAdv fst dst)
-             (ConstructorsSwe.mkAdv snd dst)));
+  lin
+    Watermelon = mkCN (mkN "vattenmelon" "vattenmeloner");
 }
