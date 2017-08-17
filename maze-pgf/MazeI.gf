@@ -10,6 +10,8 @@ incomplete concrete MazeI of Maze =
     Item = NP;
     Wish = Imp;
     Door = Prep;
+    Need = NP;
+    Some = Card;
 
   lin
     FactLine x = mkUtt x;
@@ -47,4 +49,6 @@ incomplete concrete MazeI of Maze =
            (mkAdv both7and_DConj
              (mkAdv fst dst)
              (mkAdv snd dst)));
+
+    SomeNumber n = mkCard n;
 }

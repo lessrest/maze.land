@@ -1,5 +1,5 @@
 concrete MazeEng of Maze = MazeI with (Syntax = SyntaxEng)
-  ** open ParadigmsEng, LexiconEng
+  ** open ParadigmsEng, LexiconEng, CatEng, NumeralEng
 in {
   lin
     North = mkDoor "north";
@@ -12,4 +12,8 @@ in {
 
   lin
     Watermelon = mkCN (mkN "watermelon");
+
+  lin
+    ConsumptionNeed card kind = mkNP card kind;
+    PresumptionNeed card kind = mkNP card kind;
 }
