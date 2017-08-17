@@ -3,14 +3,16 @@ concrete MazeSwe of Maze = MazeI with (Syntax = SyntaxSwe)
 in {
   flags coding = utf8;
   lin
-    North = mkDoor "norr";
-    South = mkDoor "söder";
-    West  = mkDoor "väster";
-    East  = mkDoor "öster";
+    North = mkDoor "norrut från";
+    South = mkDoor "söderut från";
+    West  = mkDoor "västerut från";
+    East  = mkDoor "österut från";
 
   oper mkDoor : Str -> Door;
   oper mkDoor s = lin Door (mkPrep s);
 
   lin
     Watermelon = mkCN (mkN "vattenmelon" "vattenmeloner");
+
+    Euro = mkCN (mkN "euro" "euros");
 }

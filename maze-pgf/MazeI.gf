@@ -1,5 +1,4 @@
-incomplete concrete MazeI of Maze =
-{
+incomplete concrete MazeI of Maze = {
   lincat
     Spot = NP;
     Fact = Cl;
@@ -10,15 +9,15 @@ incomplete concrete MazeI of Maze =
     Item = NP;
     Wish = Imp;
     Door = Prep;
-    Need = NP;
-    Some = Card;
+    -- Need = NP;
+    Some = Numeral;
+    Rule = VP;
 
   lin
     FactLine x = mkUtt x;
     WishLine wish = mkUtt wish;
     PropKind prop kind = mkCN prop kind;
 
-    One kind = mkNP a_Det kind;
     Many kind = mkNP many_Det kind;
 
     YouSeeX item
@@ -50,5 +49,11 @@ incomplete concrete MazeI of Maze =
              (mkAdv fst dst)
              (mkAdv snd dst)));
 
-    SomeNumber n = mkCard n;
+    Some1 = mkNumeral "1";
+    Some2 = mkNumeral "2";
+    Some3 = mkNumeral "3";
+    Some4 = mkNumeral "4";
+
+    Both x y = mkNP and_Conj x y;
+    Count some kind = mkNP some kind;
 }

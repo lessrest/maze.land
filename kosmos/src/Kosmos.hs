@@ -55,11 +55,12 @@ back = \case
 
 example1 :: PGF -> Set GLine
 example1 g = example g
-  [ "T17 is east of Terapija"
-  , "Terapija is north of the central market"
-  , "a small cat is in T17"
+  [ "T17 is east from Terapija"
+  , "Terapija is north from the central market"
+  , "one small cat is in T17"
   , "many big watermelons are in the central market"
-  , "en stor hund är i Terapija"
+  , "one big dog is in Terapija"
+  , "in the central market you can spend one euro to get one watermelon"
   ]
 
 example :: PGF -> [String] -> Set GLine

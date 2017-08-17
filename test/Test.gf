@@ -1,4 +1,7 @@
-abstract Test = Numeral ** {
+abstract Test = {
   cat Some;
-  fun SomeNum : Numeral -> Some;
+  fun Some1 : Some;
+  fun Some2 : Some;
+  fun Some3 : Some;
+  fun SomeInt : Int -> Some;
 }
