@@ -36,9 +36,7 @@ More explicitly, these examples are understood as:
     you can burn those euros
     and take the watermelon."
 
-Generally, rules are similar to the "linear implications" of linear logic,
-with inspiration from Chris Martens's 2015 thesis 
-["Programming Interactive Worlds With Linear Logic"](https://www.cs.cmu.edu/~cmartens/thesis/).
+Generally, rules are similar to the "linear implications" of linear logic.
 
 Doors are rules for movement, like:
 
