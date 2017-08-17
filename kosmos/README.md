@@ -2,9 +2,9 @@
 
 This project is basically a combination of
 
- * the world definition paradigm of Graham Nelson's [Inform 7](http://inform7.com/),
- * the narrative logic of Chris Martens's [*Programming Interactive Worlds With Linear Logic*](https://www.cs.cmu.edu/~cmartens/thesis/), and
- * the linguistic technology of [Grammatical Framework](https://www.grammaticalframework.org).
+ * the world definition paradigm of Graham Nelson's [Inform 7](http://inform7.com/) (2006),
+ * the narrative scheme of Chris Martens's [*Programming Interactive Worlds With Linear Logic*](https://www.cs.cmu.edu/~cmartens/thesis/) (2015), and
+ * the linguistic technology of [Grammatical Framework](https://www.grammaticalframework.org) (1998).
 
 It is motivated by a neighborhood exploration project in the "Lastadija"
 area of Rīga, Latvia, undertaken by [Free Riga](https://www.freeriga.lv/).
