@@ -20,9 +20,6 @@ Rules have some different forms:
   * "In the park, you can pet dogs."
   * "You can take flowers."
   * "In the market, you can spend four euros for a big watermelon."
-
-Doors are rules for movement, like:
-
   * "In the market, you can go north to the old town."
 
 ## World simulation
