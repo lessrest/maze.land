@@ -28,18 +28,20 @@ incomplete concrete MazeI of Maze = {
 
     PropKind prop kind = mkCN prop kind;
 
-    YIsDoorFromX dst how src = mkCl dst (mkAdv how src);
-    AnXIsAtY item spot = mkCl item (mkAdv in_Prep spot);
+    SpotHasDoor dst how src = mkCl dst (mkAdv how src);
+    SpotHasItem spot item = mkCl item (mkAdv in_Prep spot);
 
-    FactLine fact = mkUtt fact;
-    RuleLine rule = mkUtt rule;
-    YouSeeX item = mkUtt (mkCl you_NP see_V2 item);
+    YouSeeX item =
+      mkUtt (mkCl you_NP see_V2 item);
 
-    Rule1 deed = mkS (mkCl you_NP deed);
+    Rule1 deed = mkS (mkCl you_NP can_VV deed);
     Rule2 deed1 deed2 =
       mkS and_Conj
-        (mkS (mkCl you_NP deed1))
-        (mkS (mkCl you_NP deed2));
+        (mkS (mkCl you_NP can_VV deed1))
+        (mkS (mkCl you_NP can_VV deed2));
+
+    LocalRule1 spot deed =
+      mkS (mkAdv in_Prep spot) (mkS (mkCl you_NP can_VV deed));
 
     -- Walk door src dst
     --   = mkImp

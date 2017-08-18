@@ -117,7 +117,7 @@ example1 g = example g
   , "en liten katt är i T17"
   , "many big watermelons are in the central market"
   , "one big dog is in Terapija"
---  , "in the central market you can spend one euro to get one watermelon"
+  , "in the central market you can spend one euro to get one watermelon"
   ]
 
 example :: PGF -> [String] -> Set GFact

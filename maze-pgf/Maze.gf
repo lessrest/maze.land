@@ -23,13 +23,11 @@ abstract Maze = Numeral ** {
 
     PropKind : Prop -> Kind -> Kind;
 
-    YIsDoorFromX : Spot -> Door -> Spot -> Fact;
-    AnXIsAtY     : Item -> Spot -> Fact;
+    YouSee : Item -> Line;
 
-    FactLine : Fact -> Line;
-    DeedLine : Deed -> Line;
-    RuleLine : Rule -> Line;
-    YouSeeX : Item -> Line;
+    SpotHasDoor : Spot -> Door -> Spot -> Fact;
+    SpotHasItem : Spot -> Item -> Fact;
+    RuleApplies : Rule -> Fact;
 
     Walk : Door -> Spot -> Spot -> Deed;
 
@@ -41,6 +39,7 @@ abstract Maze = Numeral ** {
 
     Rule1 : Deed -> Rule;
     Rule2 : Deed -> Deed -> Rule;
+    LocalRule1 : Spot -> Deed -> Rule;
 
     Some1, Some2, Some3, Some4 : Some;
     SomeNumber : Numeral -> Some;

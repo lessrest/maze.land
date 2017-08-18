@@ -29,6 +29,8 @@ in {
     FactItem fact =
       mkNP the_Det (mkCN (mkCN (mkN "fact")) (mkS fact));
 
+    RuleApplies rule = mkCl (mkVP (mkVS (mkV "hold")) rule);
+
   lin
     RuleLine rule =
       mkUtt (mkCl you_NP (mkVP can_VV rule));

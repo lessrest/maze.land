@@ -13,7 +13,7 @@ in {
 
   lin
     Watermelon = mkCN (mkN "vattenmelon" "vattenmeloner");
-    Euro = mkCN (mkN "euro" "euros");
+    Euro = mkCN (mkN "euro" "euron" "euro" "eurosarna" utrum);
 
   lin
     Production item = mkVP (mkV2 get_V) item;
