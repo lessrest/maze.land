@@ -25,11 +25,6 @@ Doors are rules for movement, like:
 
   * "In the market, you can go north to the old town."
 
-This would be understood as:
-
-  * "If the current spot is the market,
-     you can replace the current spot with the old town."
-
 ## World simulation
 
 The world grammar is defined with [GF](https://www.grammaticalframework.org).
