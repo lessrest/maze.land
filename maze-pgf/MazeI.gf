@@ -1,6 +1,6 @@
 incomplete concrete MazeI of Maze = {
   lincat
-    Line = Utt;
+    Line = { s : Str };
     Fail = Utt;
 
     Spot = NP;
@@ -15,6 +15,8 @@ incomplete concrete MazeI of Maze = {
     Deed = VP;
     Rule = S;
 
+    Core1 = VP;
+
   lin
 
     Some1 = mkNumeral "1";
@@ -23,18 +25,19 @@ incomplete concrete MazeI of Maze = {
     Some4 = mkNumeral "4";
 
     Count some kind = mkNP some kind;
-    Many kind = mkNP many_Det kind;
+    -- Many kind = mkNP many_Det kind;
     Both x y = mkNP and_Conj x y;
 
     PropKind prop kind = mkCN prop kind;
 
     SpotHasDoor dst how src = mkCl dst (mkAdv how src);
     SpotHasItem spot item = mkCl item (mkAdv in_Prep spot);
+    YouHaveItem item = mkCl you_NP have_V2 item;
 
-    YouSeeX item =
-      mkUtt (mkCl you_NP see_V2 item);
+    YouSee item  = mkUtt (mkCl you_NP see_V2 item);
+    FactLine fact = mkUtt fact;
 
-    Rule1 deed = mkS (mkCl you_NP can_VV deed);
+    Rule1 deed = deed;
     Rule2 deed1 deed2 =
       mkS and_Conj
         (mkS (mkCl you_NP can_VV deed1))
@@ -42,6 +45,8 @@ incomplete concrete MazeI of Maze = {
 
     LocalRule1 spot deed =
       mkS (mkAdv in_Prep spot) (mkS (mkCl you_NP can_VV deed));
+    -- CoreRule core =
+    --   mkS (mkCl you_NP can_VV core);
 
     -- Walk door src dst
     --   = mkImp

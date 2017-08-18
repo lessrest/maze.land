@@ -4,15 +4,14 @@ import Riga
 import PGF (PGF)
 import qualified PGF as GF
 
-import Data.Set (Set, singleton, fromList)
+--import Data.Set (Set, singleton, fromList)
 import Data.Foldable (Foldable, foldMap, toList)
 import Control.Monad (msum)
 
 import qualified Data.List as List
 
 data Item
-  = Many GKind
-  | One GKind
+  = One GKind
   deriving (Eq, Ord, Show)
 
 data Fact
@@ -53,7 +52,7 @@ attempt facts (Rule needs news) =
 
 grok :: GFact -> [Fact]
 grok = \case
-  GAnXIsAtY gItem gSpot ->
+  GSpotHasItem gSpot gItem ->
     map (Placement gSpot) (grokItem gItem)
 
   where
@@ -63,7 +62,6 @@ grok = \case
       GCount GSome2 x -> [One x, One x]
       GCount GSome3 x -> [One x, One x, One x]
       GCount GSome4 x -> [One x, One x, One x, One x]
-      GMany x -> [Many x]
 
 readGrammar :: IO PGF
 readGrammar = GF.readPGF "Riga.pgf"
@@ -74,29 +72,57 @@ parseFact g s =
   in case (do (_, trees) <- parses
               map (fg :: GF.Tree -> GLine) trees) of
     [GFactLine a] -> Just a
+    [GRuleLine a] -> Just (GRuleApplies a)
     _   -> Nothing
 
-expand :: Set GFact -> Either GFail (Set GFact)
-expand xs = check (foldMap f xs)
+expand :: [GFact] -> Either GFail ([GCore], [GFact])
+expand = fmap (foldMap stage2) . check . foldMap stage1
   where
-    f (x@(GYIsDoorFromX src how dst)) =
-      fromList
-        [x, GYIsDoorFromX dst (back how) src]
-    f x = singleton x
+    stage1 = \case
+      -- Reverse doors
+      GSpotHasDoor src how dst ->
+        [ GSpotHasDoor src how dst
+        , GSpotHasDoor dst (back how) src ]
+      x ->
+        [x]
 
-check :: Set GFact -> Either GFail (Set GFact)
+    stage2 = \case
+      -- Make doors into rules
+      GSpotHasDoor src how dst ->
+        ([ GTaking (GSpotHasItem src GPlayer)
+            (GGiving (GSpotHasItem dst GPlayer)
+              (GKeeping (GSpotHasDoor src how dst)
+                GTrivial))
+         ], [GSpotHasDoor src how dst])
+
+      -- Expand `while' rules to core rules
+      GRuleApplies (GWhileRule fact deed boon) ->
+        ([ GKeeping fact
+            (GKeeping (GRuleApplies (GWhileRule fact deed boon))
+              (case deed of
+                 GConsumption need ->
+                   GTaking (GYouHaveItem need)
+                     (GGiving (GYouHaveItem boon) GTrivial)
+                 GPresumption need ->
+                   GKeeping (GYouHaveItem need)
+                     (GGiving (GYouHaveItem boon) GTrivial)))
+         ], [GRuleApplies (GWhileRule fact deed boon)])
+
+      x -> ([], [x])
+
+check :: [GFact] -> Either GFail [GFact]
 check xs =
-  case msum (map bad (toList xs)) of
+  case msum (map bad xs) of
     Nothing -> Right xs
     Just (src, how1, how2, dst) ->
       Left (GDoorConflict src dst how1 how2)
   where
-    bad (GYIsDoorFromX src1 how1 dst1) =
+    bad (GSpotHasDoor src1 how1 dst1) =
       msum $ map (\case
-              GYIsDoorFromX src2 how2 dst2
+              GSpotHasDoor src2 how2 dst2
                 | src1 == src2 && dst1 == dst2 && how1 /= how2
                   -> Just (src1, how1, how2, dst1)
-              _ -> Nothing) (toList xs)
+              _ -> Nothing) xs
     bad _ = Nothing
 
 yell :: (Show a, Gf a) => PGF -> a -> [String]
@@ -110,27 +136,28 @@ back = \case
   GWest -> GEast
   GEast -> GWest
 
-example1 :: PGF -> Set GFact
+example1 :: PGF -> [GFact]
 example1 g = example g
-  [ "T17 is east from Terapija"
-  , "Terapija is north from the central market"
-  , "en liten katt är i T17"
-  , "many big watermelons are in the central market"
-  , "one big dog is in Terapija"
-  , "in the central market you can spend one euro to get one watermelon"
+  [ "Terapija is north from the central market"
+  , "four big watermelons are in the central market"
+  , "rule: when the player is in the central market "
+      ++ "if you spend one euro then you get one watermelon"
+  , "the player is in Terapija"
+  , "you have three euros"
   ]
 
-example :: PGF -> [String] -> Set GFact
+example :: PGF -> [String] -> [GFact]
 example g ss =
   let xs = map (\x -> (x, parseFact g x)) ss
-  in fromList . map (\(s, x) -> maybe (error s) id x) $ xs
+  in map (\(s, x) -> maybe (error s) id x) $ xs
 
-run :: PGF -> Set GFact -> IO ()
+run :: PGF -> [GFact] -> IO ()
 run g x = do
   case expand x of
     Left a -> mapM_ putStrLn (yell g a)
-    Right a -> do
+    Right (a, b) -> do
       yellSet g a
+      yellSet g b
       -- putStrLn ""
       -- yellSet g (wishes g a GTerapija)
 

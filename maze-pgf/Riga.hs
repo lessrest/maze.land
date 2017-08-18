@@ -41,11 +41,17 @@ instance Gf GFloat where
 -- below this line machine-generated
 ----------------------------------------------------
 
+data GCore =
+   GDoing GDeed GCore 
+ | GGiving GFact GCore 
+ | GKeeping GFact GCore 
+ | GTaking GFact GCore 
+ | GTrivial 
+  deriving (Show, Eq, Ord)
+
 data GDeed =
    GConsumption GItem 
  | GPresumption GItem 
- | GProduction GItem 
- | GWalk GDoor GSpot GSpot 
   deriving (Show, Eq, Ord)
 
 data GDig =
@@ -85,8 +91,10 @@ data GDoor =
   deriving (Show, Eq, Ord)
 
 data GFact =
-   GAnXIsAtY GItem GSpot 
- | GYIsDoorFromX GSpot GDoor GSpot 
+   GRuleApplies GRule 
+ | GSpotHasDoor GSpot GDoor GSpot 
+ | GSpotHasItem GSpot GItem 
+ | GYouHaveItem GItem 
   deriving (Show, Eq, Ord)
 
 data GFail = GDoorConflict GSpot GSpot GDoor GDoor 
@@ -96,7 +104,7 @@ data GItem =
    GBoth GItem GItem 
  | GCount GSome GKind 
  | GFactItem GFact 
- | GMany GKind 
+ | GPlayer 
   deriving (Show, Eq, Ord)
 
 data GKind =
@@ -109,10 +117,9 @@ data GKind =
   deriving (Show, Eq, Ord)
 
 data GLine =
-   GDeedLine GDeed 
- | GFactLine GFact 
+   GFactLine GFact 
  | GRuleLine GRule 
- | GYouSeeX GItem 
+ | GYouSee GItem 
   deriving (Show, Eq, Ord)
 
 data GNumeral = Gnum GSub1000000 
@@ -124,8 +131,8 @@ data GProp =
   deriving (Show, Eq, Ord)
 
 data GRule =
-   GRule1 GDeed 
- | GRule2 GDeed GDeed 
+   GCoreRule2 GDeed GFact 
+ | GWhileRule GFact GDeed GItem 
   deriving (Show, Eq, Ord)
 
 data GSome =
@@ -171,18 +178,32 @@ data GSub1000000 =
   deriving (Show, Eq, Ord)
 
 
+instance Gf GCore where
+  gf (GDoing x1 x2) = mkApp (mkCId "Doing") [gf x1, gf x2]
+  gf (GGiving x1 x2) = mkApp (mkCId "Giving") [gf x1, gf x2]
+  gf (GKeeping x1 x2) = mkApp (mkCId "Keeping") [gf x1, gf x2]
+  gf (GTaking x1 x2) = mkApp (mkCId "Taking") [gf x1, gf x2]
+  gf GTrivial = mkApp (mkCId "Trivial") []
+
+  fg t =
+    case unApp t of
+      Just (i,[x1,x2]) | i == mkCId "Doing" -> GDoing (fg x1) (fg x2)
+      Just (i,[x1,x2]) | i == mkCId "Giving" -> GGiving (fg x1) (fg x2)
+      Just (i,[x1,x2]) | i == mkCId "Keeping" -> GKeeping (fg x1) (fg x2)
+      Just (i,[x1,x2]) | i == mkCId "Taking" -> GTaking (fg x1) (fg x2)
+      Just (i,[]) | i == mkCId "Trivial" -> GTrivial 
+
+
+      _ -> error ("no Core " ++ show t)
+
 instance Gf GDeed where
   gf (GConsumption x1) = mkApp (mkCId "Consumption") [gf x1]
   gf (GPresumption x1) = mkApp (mkCId "Presumption") [gf x1]
-  gf (GProduction x1) = mkApp (mkCId "Production") [gf x1]
-  gf (GWalk x1 x2 x3) = mkApp (mkCId "Walk") [gf x1, gf x2, gf x3]
 
   fg t =
     case unApp t of
       Just (i,[x1]) | i == mkCId "Consumption" -> GConsumption (fg x1)
       Just (i,[x1]) | i == mkCId "Presumption" -> GPresumption (fg x1)
-      Just (i,[x1]) | i == mkCId "Production" -> GProduction (fg x1)
-      Just (i,[x1,x2,x3]) | i == mkCId "Walk" -> GWalk (fg x1) (fg x2) (fg x3)
 
 
       _ -> error ("no Deed " ++ show t)
@@ -268,13 +289,17 @@ instance Gf GDoor where
       _ -> error ("no Door " ++ show t)
 
 instance Gf GFact where
-  gf (GAnXIsAtY x1 x2) = mkApp (mkCId "AnXIsAtY") [gf x1, gf x2]
-  gf (GYIsDoorFromX x1 x2 x3) = mkApp (mkCId "YIsDoorFromX") [gf x1, gf x2, gf x3]
+  gf (GRuleApplies x1) = mkApp (mkCId "RuleApplies") [gf x1]
+  gf (GSpotHasDoor x1 x2 x3) = mkApp (mkCId "SpotHasDoor") [gf x1, gf x2, gf x3]
+  gf (GSpotHasItem x1 x2) = mkApp (mkCId "SpotHasItem") [gf x1, gf x2]
+  gf (GYouHaveItem x1) = mkApp (mkCId "YouHaveItem") [gf x1]
 
   fg t =
     case unApp t of
-      Just (i,[x1,x2]) | i == mkCId "AnXIsAtY" -> GAnXIsAtY (fg x1) (fg x2)
-      Just (i,[x1,x2,x3]) | i == mkCId "YIsDoorFromX" -> GYIsDoorFromX (fg x1) (fg x2) (fg x3)
+      Just (i,[x1]) | i == mkCId "RuleApplies" -> GRuleApplies (fg x1)
+      Just (i,[x1,x2,x3]) | i == mkCId "SpotHasDoor" -> GSpotHasDoor (fg x1) (fg x2) (fg x3)
+      Just (i,[x1,x2]) | i == mkCId "SpotHasItem" -> GSpotHasItem (fg x1) (fg x2)
+      Just (i,[x1]) | i == mkCId "YouHaveItem" -> GYouHaveItem (fg x1)
 
 
       _ -> error ("no Fact " ++ show t)
@@ -293,14 +318,14 @@ instance Gf GItem where
   gf (GBoth x1 x2) = mkApp (mkCId "Both") [gf x1, gf x2]
   gf (GCount x1 x2) = mkApp (mkCId "Count") [gf x1, gf x2]
   gf (GFactItem x1) = mkApp (mkCId "FactItem") [gf x1]
-  gf (GMany x1) = mkApp (mkCId "Many") [gf x1]
+  gf GPlayer = mkApp (mkCId "Player") []
 
   fg t =
     case unApp t of
       Just (i,[x1,x2]) | i == mkCId "Both" -> GBoth (fg x1) (fg x2)
       Just (i,[x1,x2]) | i == mkCId "Count" -> GCount (fg x1) (fg x2)
       Just (i,[x1]) | i == mkCId "FactItem" -> GFactItem (fg x1)
-      Just (i,[x1]) | i == mkCId "Many" -> GMany (fg x1)
+      Just (i,[]) | i == mkCId "Player" -> GPlayer 
 
 
       _ -> error ("no Item " ++ show t)
@@ -326,17 +351,15 @@ instance Gf GKind where
       _ -> error ("no Kind " ++ show t)
 
 instance Gf GLine where
-  gf (GDeedLine x1) = mkApp (mkCId "DeedLine") [gf x1]
   gf (GFactLine x1) = mkApp (mkCId "FactLine") [gf x1]
   gf (GRuleLine x1) = mkApp (mkCId "RuleLine") [gf x1]
-  gf (GYouSeeX x1) = mkApp (mkCId "YouSeeX") [gf x1]
+  gf (GYouSee x1) = mkApp (mkCId "YouSee") [gf x1]
 
   fg t =
     case unApp t of
-      Just (i,[x1]) | i == mkCId "DeedLine" -> GDeedLine (fg x1)
       Just (i,[x1]) | i == mkCId "FactLine" -> GFactLine (fg x1)
       Just (i,[x1]) | i == mkCId "RuleLine" -> GRuleLine (fg x1)
-      Just (i,[x1]) | i == mkCId "YouSeeX" -> GYouSeeX (fg x1)
+      Just (i,[x1]) | i == mkCId "YouSee" -> GYouSee (fg x1)
 
 
       _ -> error ("no Line " ++ show t)
@@ -364,13 +387,13 @@ instance Gf GProp where
       _ -> error ("no Prop " ++ show t)
 
 instance Gf GRule where
-  gf (GRule1 x1) = mkApp (mkCId "Rule1") [gf x1]
-  gf (GRule2 x1 x2) = mkApp (mkCId "Rule2") [gf x1, gf x2]
+  gf (GCoreRule2 x1 x2) = mkApp (mkCId "CoreRule2") [gf x1, gf x2]
+  gf (GWhileRule x1 x2 x3) = mkApp (mkCId "WhileRule") [gf x1, gf x2, gf x3]
 
   fg t =
     case unApp t of
-      Just (i,[x1]) | i == mkCId "Rule1" -> GRule1 (fg x1)
-      Just (i,[x1,x2]) | i == mkCId "Rule2" -> GRule2 (fg x1) (fg x2)
+      Just (i,[x1,x2]) | i == mkCId "CoreRule2" -> GCoreRule2 (fg x1) (fg x2)
+      Just (i,[x1,x2,x3]) | i == mkCId "WhileRule" -> GWhileRule (fg x1) (fg x2) (fg x3)
 
 
       _ -> error ("no Rule " ++ show t)
