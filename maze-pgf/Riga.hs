@@ -41,6 +41,13 @@ instance Gf GFloat where
 -- below this line machine-generated
 ----------------------------------------------------
 
+data GDeed =
+   GConsumption GItem 
+ | GPresumption GItem 
+ | GProduction GItem 
+ | GWalk GDoor GSpot GSpot 
+  deriving (Show, Eq, Ord)
+
 data GDig =
    GD_0 
  | GD_1 
@@ -88,6 +95,7 @@ data GFail = GDoorConflict GSpot GSpot GDoor GDoor
 data GItem =
    GBoth GItem GItem 
  | GCount GSome GKind 
+ | GFactItem GFact 
  | GMany GKind 
   deriving (Show, Eq, Ord)
 
@@ -101,10 +109,9 @@ data GKind =
   deriving (Show, Eq, Ord)
 
 data GLine =
-   GFactLine GFact 
+   GDeedLine GDeed 
+ | GFactLine GFact 
  | GRuleLine GRule 
- | GSpotRuleLine GSpot GRule 
- | GWishLine GWish 
  | GYouSeeX GItem 
   deriving (Show, Eq, Ord)
 
@@ -116,7 +123,9 @@ data GProp =
  | GSmall 
   deriving (Show, Eq, Ord)
 
-data GRule = GConsumptionRule GItem GItem 
+data GRule =
+   GRule1 GDeed 
+ | GRule2 GDeed GDeed 
   deriving (Show, Eq, Ord)
 
 data GSome =
@@ -161,9 +170,22 @@ data GSub1000000 =
  | Gpot3plus GSub1000 GSub1000 
   deriving (Show, Eq, Ord)
 
-data GWish = GWalk GDoor GSpot GSpot 
-  deriving (Show, Eq, Ord)
 
+instance Gf GDeed where
+  gf (GConsumption x1) = mkApp (mkCId "Consumption") [gf x1]
+  gf (GPresumption x1) = mkApp (mkCId "Presumption") [gf x1]
+  gf (GProduction x1) = mkApp (mkCId "Production") [gf x1]
+  gf (GWalk x1 x2 x3) = mkApp (mkCId "Walk") [gf x1, gf x2, gf x3]
+
+  fg t =
+    case unApp t of
+      Just (i,[x1]) | i == mkCId "Consumption" -> GConsumption (fg x1)
+      Just (i,[x1]) | i == mkCId "Presumption" -> GPresumption (fg x1)
+      Just (i,[x1]) | i == mkCId "Production" -> GProduction (fg x1)
+      Just (i,[x1,x2,x3]) | i == mkCId "Walk" -> GWalk (fg x1) (fg x2) (fg x3)
+
+
+      _ -> error ("no Deed " ++ show t)
 
 instance Gf GDig where
   gf GD_0 = mkApp (mkCId "D_0") []
@@ -270,12 +292,14 @@ instance Gf GFail where
 instance Gf GItem where
   gf (GBoth x1 x2) = mkApp (mkCId "Both") [gf x1, gf x2]
   gf (GCount x1 x2) = mkApp (mkCId "Count") [gf x1, gf x2]
+  gf (GFactItem x1) = mkApp (mkCId "FactItem") [gf x1]
   gf (GMany x1) = mkApp (mkCId "Many") [gf x1]
 
   fg t =
     case unApp t of
       Just (i,[x1,x2]) | i == mkCId "Both" -> GBoth (fg x1) (fg x2)
       Just (i,[x1,x2]) | i == mkCId "Count" -> GCount (fg x1) (fg x2)
+      Just (i,[x1]) | i == mkCId "FactItem" -> GFactItem (fg x1)
       Just (i,[x1]) | i == mkCId "Many" -> GMany (fg x1)
 
 
@@ -302,18 +326,16 @@ instance Gf GKind where
       _ -> error ("no Kind " ++ show t)
 
 instance Gf GLine where
+  gf (GDeedLine x1) = mkApp (mkCId "DeedLine") [gf x1]
   gf (GFactLine x1) = mkApp (mkCId "FactLine") [gf x1]
   gf (GRuleLine x1) = mkApp (mkCId "RuleLine") [gf x1]
-  gf (GSpotRuleLine x1 x2) = mkApp (mkCId "SpotRuleLine") [gf x1, gf x2]
-  gf (GWishLine x1) = mkApp (mkCId "WishLine") [gf x1]
   gf (GYouSeeX x1) = mkApp (mkCId "YouSeeX") [gf x1]
 
   fg t =
     case unApp t of
+      Just (i,[x1]) | i == mkCId "DeedLine" -> GDeedLine (fg x1)
       Just (i,[x1]) | i == mkCId "FactLine" -> GFactLine (fg x1)
       Just (i,[x1]) | i == mkCId "RuleLine" -> GRuleLine (fg x1)
-      Just (i,[x1,x2]) | i == mkCId "SpotRuleLine" -> GSpotRuleLine (fg x1) (fg x2)
-      Just (i,[x1]) | i == mkCId "WishLine" -> GWishLine (fg x1)
       Just (i,[x1]) | i == mkCId "YouSeeX" -> GYouSeeX (fg x1)
 
 
@@ -342,11 +364,13 @@ instance Gf GProp where
       _ -> error ("no Prop " ++ show t)
 
 instance Gf GRule where
-  gf (GConsumptionRule x1 x2) = mkApp (mkCId "ConsumptionRule") [gf x1, gf x2]
+  gf (GRule1 x1) = mkApp (mkCId "Rule1") [gf x1]
+  gf (GRule2 x1 x2) = mkApp (mkCId "Rule2") [gf x1, gf x2]
 
   fg t =
     case unApp t of
-      Just (i,[x1,x2]) | i == mkCId "ConsumptionRule" -> GConsumptionRule (fg x1) (fg x2)
+      Just (i,[x1]) | i == mkCId "Rule1" -> GRule1 (fg x1)
+      Just (i,[x1,x2]) | i == mkCId "Rule2" -> GRule2 (fg x1) (fg x2)
 
 
       _ -> error ("no Rule " ++ show t)
@@ -446,15 +470,5 @@ instance Gf GSub1000000 where
 
 
       _ -> error ("no Sub1000000 " ++ show t)
-
-instance Gf GWish where
-  gf (GWalk x1 x2 x3) = mkApp (mkCId "Walk") [gf x1, gf x2, gf x3]
-
-  fg t =
-    case unApp t of
-      Just (i,[x1,x2,x3]) | i == mkCId "Walk" -> GWalk (fg x1) (fg x2) (fg x3)
-
-
-      _ -> error ("no Wish " ++ show t)
 
 

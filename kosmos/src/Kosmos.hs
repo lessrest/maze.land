@@ -74,7 +74,6 @@ parseFact g s =
   in case (do (_, trees) <- parses
               map (fg :: GF.Tree -> GLine) trees) of
     [GFactLine a] -> Just a
-    [GSpotRuleLine spot rule] ->
     _   -> Nothing
 
 expand :: Set GFact -> Either GFail (Set GFact)
@@ -100,9 +99,9 @@ check xs =
               _ -> Nothing) (toList xs)
     bad _ = Nothing
 
-yell :: Gf a => PGF -> a -> [String]
+yell :: (Show a, Gf a) => PGF -> a -> [String]
 yell g x =
-  GF.linearizeAll g (gf x)
+  show x : GF.linearizeAll g (gf x)
 
 back :: GDoor -> GDoor
 back = \case
@@ -115,10 +114,10 @@ example1 :: PGF -> Set GFact
 example1 g = example g
   [ "T17 is east from Terapija"
   , "Terapija is north from the central market"
-  , "one small cat is in T17"
+  , "en liten katt är i T17"
   , "many big watermelons are in the central market"
   , "one big dog is in Terapija"
-  , "in the central market you can spend one euro to get one watermelon"
+--  , "in the central market you can spend one euro to get one watermelon"
   ]
 
 example :: PGF -> [String] -> Set GFact
@@ -132,19 +131,19 @@ run g x = do
     Left a -> mapM_ putStrLn (yell g a)
     Right a -> do
       yellSet g a
-      putStrLn ""
-      yellSet g (wishes g a GTerapija)
+      -- putStrLn ""
+      -- yellSet g (wishes g a GTerapija)
 
-wishes :: PGF -> Set GFact -> GSpot -> Set GWish
-wishes _ xs spot =
-  flip foldMap xs $
-    \case
-      GYIsDoorFromX dst how src
-        | spot == dst
-          -> singleton (GWalk how src dst)
-      _ -> mempty
+-- wishes :: PGF -> Set GFact -> GSpot -> Set GWish
+-- wishes _ xs spot =
+--   flip foldMap xs $
+--     \case
+--       GYIsDoorFromX dst how src
+--         | spot == dst
+--           -> singleton (GWalk how src dst)
+--       _ -> mempty
 
-yellSet :: (Foldable t, Gf a) => PGF -> t a -> IO ()
+yellSet :: (Foldable t, Gf a, Show a) => PGF -> t a -> IO ()
 yellSet g xs =
   mapM_ ((>> putStrLn "") . mapM_ putStrLn) (map (yell g) (toList xs))
 

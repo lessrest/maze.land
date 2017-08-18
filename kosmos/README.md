@@ -21,32 +21,15 @@ Rules have some different forms:
   * "You can take flowers."
   * "In the market, you can spend four euros for a big watermelon."
 
-More explicitly, these examples are understood as:
-
-  * "If the current spot has a cat,
-    you can pet that cat."
-  * "If the current spot is the park,
-    and if there is a dog in the current spot,
-    you can pet that dog."
-  * "If the current spot has a flower,
-    you can take that flower."
-  * "If the current spot is the market,
-    and if there is a watermelon in the current spot,
-    and if there are four euros in your pack,
-    you can burn those euros
-    and take the watermelon."
-
-Generally, rules are similar to the "linear implications" of linear logic.
-
 Doors are rules for movement, like:
 
   * "In the market, you can go north to the old town."
-  
+
 This would be understood as:
 
   * "If the current spot is the market,
      you can replace the current spot with the old town."
-     
+
 ## World simulation
 
 The world grammar is defined with [GF](https://www.grammaticalframework.org).

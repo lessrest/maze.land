@@ -1,3 +1,3 @@
 all:
-	gf -f haskell --make *.gf
+	gf -f haskell --make Riga{Eng,Swe}.gf
 	./derive

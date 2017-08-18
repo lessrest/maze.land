@@ -16,16 +16,22 @@ in {
   lin
     Watermelon = mkCN (mkN "watermelon");
 
-    ConsumptionRule need boon =
-      mkVP (mkV2V (mkV "spend") noPrep to_Prep)
-        need
-        (mkVP (mkV2 "get") boon);
+  lin
+    Production item = mkVP (mkV2 get_V) item;
+    Consumption item = mkVP (mkV2 spend_V) item;
+    Presumption item = mkVP (mkV2 use_V) item;
+  oper
+    get_V = mkV "get";
+    spend_V = mkV "spend";
+    use_V = mkV "use";
 
+  lin
+    FactItem fact =
+      mkNP the_Det (mkCN (mkCN (mkN "fact")) (mkS fact));
+
+  lin
     RuleLine rule =
       mkUtt (mkCl you_NP (mkVP can_VV rule));
-
-    SpotRuleLine spot rule =
-      mkUtt (mkS (mkAdv in_Prep spot) (mkS (mkCl you_NP (mkVP can_VV rule))));
 
     Euro = mkCN (mkN "euro" "euros");
 }
