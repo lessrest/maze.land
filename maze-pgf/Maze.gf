@@ -37,7 +37,6 @@ abstract Maze = Numeral ** {
 
     -- Walk : Door -> Spot -> Spot -> Deed;
 
-    FactItem : Fact -> Item;
     Consumption : Item -> Deed;
     Presumption : Item -> Deed;
 

@@ -4,64 +4,49 @@ import Riga
 import PGF (PGF)
 import qualified PGF as GF
 
---import Data.Set (Set, singleton, fromList)
 import Data.Foldable (Foldable, foldMap, toList)
-import Control.Monad (msum)
+import Control.Monad (msum, guard)
+import Data.Maybe (mapMaybe)
 
 import qualified Data.List as List
 
-data Item
-  = One GKind
-  deriving (Eq, Ord, Show)
+-- data Item
+--   = One GKind
+--   deriving (Eq, Ord, Show)
 
-data Fact
-  = Placement GSpot Item
-  | Residence GSpot
-  | Possession Item
-  | Ruling Rule
-  deriving (Eq, Ord, Show)
+-- data Fact
+--   = Placement GSpot Item
+--   | Residence GSpot
+--   | Possession Item
+--   | Ruling Rule
+--   deriving (Eq, Ord, Show)
 
-data Need
-  = Consumption Fact
-  | Presumption Fact
-  deriving (Eq, Ord, Show)
+-- data Need
+--   = Consumption Fact
+--   | Presumption Fact
+--   deriving (Eq, Ord, Show)
 
-data Deed
-  = Produce Fact
-  | Consume Fact
-  deriving (Eq, Ord, Show)
+-- data Deed
+--   = Produce Fact
+--   | Consume Fact
+--   deriving (Eq, Ord, Show)
 
-data Rule
-  = Rule [Need] [Fact]
-  deriving (Eq, Ord, Show)
+-- data Rule
+--   = Rule [Need] [Fact]
+--   deriving (Eq, Ord, Show)
 
-attempt :: [Fact] -> Rule -> Either Need [Fact]
-attempt facts (Rule needs news) =
-  case needs of
-    [] -> Right (facts ++ news)
-    (x:xs) ->
-      case x of
-        Presumption fact ->
-          if fact `elem` facts
-          then attempt facts (Rule xs news)
-          else Left x
-        Consumption fact ->
-          if fact `elem` facts
-          then attempt (List.delete fact facts) (Rule xs news)
-          else Left x
+-- grok :: GFact -> [Fact]
+-- grok = \case
+--   GSpotHasItem gSpot gItem ->
+--     map (Placement gSpot) (grokItem gItem)
 
-grok :: GFact -> [Fact]
-grok = \case
-  GSpotHasItem gSpot gItem ->
-    map (Placement gSpot) (grokItem gItem)
-
-  where
-    grokItem = \case
-      GBoth a b -> grokItem a ++ grokItem b
-      GCount GSome1 x -> [One x]
-      GCount GSome2 x -> [One x, One x]
-      GCount GSome3 x -> [One x, One x, One x]
-      GCount GSome4 x -> [One x, One x, One x, One x]
+--   where
+--     grokItem = \case
+--       GBoth a b -> grokItem a ++ grokItem b
+--       GCount GSome1 x -> [One x]
+--       GCount GSome2 x -> [One x, One x]
+--       GCount GSome3 x -> [One x, One x, One x]
+--       GCount GSome4 x -> [One x, One x, One x, One x]
 
 readGrammar :: IO PGF
 readGrammar = GF.readPGF "Riga.pgf"
@@ -74,6 +59,21 @@ parseFact g s =
     [GFactLine a] -> Just a
     [GRuleLine a] -> Just (GRuleApplies a)
     _   -> Nothing
+
+explore :: [GFact] -> [GCore] -> [[GFact]]
+explore premises = mapMaybe (apply premises)
+
+apply :: [GFact] -> GCore -> Maybe [GFact]
+apply facts = \case
+  GKeeping fact more ->
+    do guard (elem fact facts)
+       apply facts more
+  GTaking fact more ->
+    do guard (elem fact facts)
+       apply (List.delete fact facts) more
+  GGiving fact more ->
+    apply (fact : facts) more
+  GTrivial -> Just facts
 
 expand :: [GFact] -> Either GFail ([GCore], [GFact])
 expand = fmap (foldMap stage2) . check . foldMap stage1
@@ -108,7 +108,24 @@ expand = fmap (foldMap stage2) . check . foldMap stage1
                      (GGiving (GYouHaveItem boon) GTrivial)))
          ], [GRuleApplies (GWhileRule fact deed boon)])
 
+      -- Expand aggregate items to multiple items
+      GYouHaveItem item ->
+        ([], map GYouHaveItem (expandAggregateItem item))
+
       x -> ([], [x])
+
+expandAggregateItem :: GItem -> [GItem]
+expandAggregateItem =
+  \case
+    GCount GSome2 kind ->
+      replicate 2 (GCount GSome1 kind)
+    GCount GSome3 kind ->
+      replicate 3 (GCount GSome1 kind)
+    GCount GSome4 kind ->
+      replicate 4 (GCount GSome1 kind)
+    GBoth x y ->
+      expandAggregateItem x ++ expandAggregateItem y
+    x -> [x]
 
 check :: [GFact] -> Either GFail [GFact]
 check xs =
@@ -127,7 +144,7 @@ check xs =
 
 yell :: (Show a, Gf a) => PGF -> a -> [String]
 yell g x =
-  show x : GF.linearizeAll g (gf x)
+  show x : filter (not . null) (take 1 (GF.linearizeAll g (gf x)))
 
 back :: GDoor -> GDoor
 back = \case
@@ -142,7 +159,7 @@ example1 g = example g
   , "four big watermelons are in the central market"
   , "rule: when the player is in the central market "
       ++ "if you spend one euro then you get one watermelon"
-  , "the player is in Terapija"
+  , "the player is in the central market"
   , "you have three euros"
   ]
 
@@ -156,8 +173,13 @@ run g x = do
   case expand x of
     Left a -> mapM_ putStrLn (yell g a)
     Right (a, b) -> do
+      putStrLn "* Cores:\n"
       yellSet g a
+      putStrLn "* Facts:\n"
       yellSet g b
+      putStrLn "* Explore:\n"
+      mapM_ (\x -> putStrLn "* Option\n" >> yellSet g x) (explore b a)
+
       -- putStrLn ""
       -- yellSet g (wishes g a GTerapija)
 

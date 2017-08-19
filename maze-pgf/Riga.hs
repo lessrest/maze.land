@@ -103,7 +103,6 @@ data GFail = GDoorConflict GSpot GSpot GDoor GDoor
 data GItem =
    GBoth GItem GItem 
  | GCount GSome GKind 
- | GFactItem GFact 
  | GPlayer 
   deriving (Show, Eq, Ord)
 
@@ -317,14 +316,12 @@ instance Gf GFail where
 instance Gf GItem where
   gf (GBoth x1 x2) = mkApp (mkCId "Both") [gf x1, gf x2]
   gf (GCount x1 x2) = mkApp (mkCId "Count") [gf x1, gf x2]
-  gf (GFactItem x1) = mkApp (mkCId "FactItem") [gf x1]
   gf GPlayer = mkApp (mkCId "Player") []
 
   fg t =
     case unApp t of
       Just (i,[x1,x2]) | i == mkCId "Both" -> GBoth (fg x1) (fg x2)
       Just (i,[x1,x2]) | i == mkCId "Count" -> GCount (fg x1) (fg x2)
-      Just (i,[x1]) | i == mkCId "FactItem" -> GFactItem (fg x1)
       Just (i,[]) | i == mkCId "Player" -> GPlayer 
 
 
