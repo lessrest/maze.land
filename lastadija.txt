@@ -1,0 +1,46 @@
+the central market pavilions are southeast from the bus station
+the central market shoemaker is northeast from the central market pavilions
+"the pan" is northeast from the central market shoemaker
+the Vera Muhinas memorial house is east from "the pan"
+the Abrenes Street bus station is northeast from the Vera Muhinas memorial house
+Latgalite is south from the Abrenes Street bus station
+Dagdas Street is south from Latgalite
+the synagogue memorial is west from Latgalite
+Deficits is northwest from the synagogue memorial
+Banuzis is northwest from Deficits
+Goodwill Studio is southwest from Deficits
+the Jesus Church is southwest from Goodwill Studio
+Sviesta pika is southwest from Banuzis
+Sviesta pika is east from the Free Riga neighborhood residence
+the Orthodox Church is northwest from the soy shop
+the soy shop is northwest from Banuzis
+the Science Academy is southwest from the Orthodox Church
+the Science Academy is north from Sviesta pika
+the Free Riga neighborhood residence is southwest from the Science Academy
+the industrial goods market is northwest from the Free Riga neighborhood residence
+the night market is northwest from the industrial goods market
+the central market pavilions are northwest from the night market
+the Red Cross social center is south from the night market
+Spikeri is south from the Red Cross social center
+the Spikeri promenade is south from Spikeri
+the Daugava swimming spot is northwest from the Spikeri promenade
+the ghetto museum is northeast from the Spikeri promenade
+the ghetto museum is southwest from the green field
+the green field is south from the Free Riga neighborhood residence
+the green field is southwest from Pushkin 11
+Pushkin 11 is northwest from the Pushkin Street print shop
+Pushkin 11 is southwest from Sviesta pika
+the Hummus Team is southeast from Sviesta pika
+the Jesus Church is southeast from the Hummus Team
+the book shops "Janus" and "Gora" are southwest from the Jesus Church
+"Agroprojekts" is southwest from the book shops "Janus" and "Gora"
+"Idioma" is south from the green field
+"Idioma" is north from the Riverside Gallery
+the Riverside Gallery is southeast from the ghetto museum
+Maza Krasta Street is southeast from "Agroprojekts"
+Café Rosemary is east from "Agroprojekts"
+Speka Street is east from Maza Krasta Street
+Speka Street is south from Café Rosemary
+the tunnel is southeast from Café Rosemary
+Vingruma Club is north from Café Rosemary
+Vingruma Club is southeast from the Jesus Church

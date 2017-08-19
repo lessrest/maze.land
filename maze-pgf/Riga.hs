@@ -86,7 +86,11 @@ data GDigits =
 data GDoor =
    GEast 
  | GNorth 
+ | GNorthEast 
+ | GNorthWest 
  | GSouth 
+ | GSouthEast 
+ | GSouthWest 
  | GWest 
   deriving (Show, Eq, Ord)
 
@@ -148,6 +152,44 @@ data GSpot =
  | GT17 
  | GTerapija 
  | GUniversity 
+ | Gspot_Agroprojekts 
+ | Gspot_Banuzis 
+ | Gspot_CafeRosemary 
+ | Gspot_DagdasStreet 
+ | Gspot_Deficits 
+ | Gspot_GoodwillStudio 
+ | Gspot_Idioma 
+ | Gspot_Latgalite 
+ | Gspot_MazaKrastaStreet 
+ | Gspot_Pushkin11 
+ | Gspot_SpekaStreet 
+ | Gspot_Spikeri 
+ | Gspot_SviestaPika 
+ | Gspot_TheAbrenesStreetBusStation 
+ | Gspot_TheBookShopsJanusAndGora 
+ | Gspot_TheBusStation 
+ | Gspot_TheCentralMarketPavilions 
+ | Gspot_TheCentralMarketShoemaker 
+ | Gspot_TheDaugavaSwimmingSpot 
+ | Gspot_TheFreeRigaNeighborhoodResidence 
+ | Gspot_TheGhettoMuseum 
+ | Gspot_TheGreenField 
+ | Gspot_TheHummusTeam 
+ | Gspot_TheIndustrialGoodsMarket 
+ | Gspot_TheJesusChurch 
+ | Gspot_TheNightMarket 
+ | Gspot_TheOrthodoxChurch 
+ | Gspot_ThePan 
+ | Gspot_ThePushkinStreetPrintShop 
+ | Gspot_TheRedCrossSocialCenter 
+ | Gspot_TheRiversideGallery 
+ | Gspot_TheScienceAcademy 
+ | Gspot_TheSoyShop 
+ | Gspot_TheSpikeriPromenade 
+ | Gspot_TheSynagogueMemorial 
+ | Gspot_TheTunnel 
+ | Gspot_TheVeraMuhinasMemorialHouse 
+ | Gspot_VingrumaClub 
   deriving (Show, Eq, Ord)
 
 data GSub10 =
@@ -274,14 +316,22 @@ instance Gf GDigits where
 instance Gf GDoor where
   gf GEast = mkApp (mkCId "East") []
   gf GNorth = mkApp (mkCId "North") []
+  gf GNorthEast = mkApp (mkCId "NorthEast") []
+  gf GNorthWest = mkApp (mkCId "NorthWest") []
   gf GSouth = mkApp (mkCId "South") []
+  gf GSouthEast = mkApp (mkCId "SouthEast") []
+  gf GSouthWest = mkApp (mkCId "SouthWest") []
   gf GWest = mkApp (mkCId "West") []
 
   fg t =
     case unApp t of
       Just (i,[]) | i == mkCId "East" -> GEast 
       Just (i,[]) | i == mkCId "North" -> GNorth 
+      Just (i,[]) | i == mkCId "NorthEast" -> GNorthEast 
+      Just (i,[]) | i == mkCId "NorthWest" -> GNorthWest 
       Just (i,[]) | i == mkCId "South" -> GSouth 
+      Just (i,[]) | i == mkCId "SouthEast" -> GSouthEast 
+      Just (i,[]) | i == mkCId "SouthWest" -> GSouthWest 
       Just (i,[]) | i == mkCId "West" -> GWest 
 
 
@@ -419,6 +469,44 @@ instance Gf GSpot where
   gf GT17 = mkApp (mkCId "T17") []
   gf GTerapija = mkApp (mkCId "Terapija") []
   gf GUniversity = mkApp (mkCId "University") []
+  gf Gspot_Agroprojekts = mkApp (mkCId "spot_Agroprojekts") []
+  gf Gspot_Banuzis = mkApp (mkCId "spot_Banuzis") []
+  gf Gspot_CafeRosemary = mkApp (mkCId "spot_CafeRosemary") []
+  gf Gspot_DagdasStreet = mkApp (mkCId "spot_DagdasStreet") []
+  gf Gspot_Deficits = mkApp (mkCId "spot_Deficits") []
+  gf Gspot_GoodwillStudio = mkApp (mkCId "spot_GoodwillStudio") []
+  gf Gspot_Idioma = mkApp (mkCId "spot_Idioma") []
+  gf Gspot_Latgalite = mkApp (mkCId "spot_Latgalite") []
+  gf Gspot_MazaKrastaStreet = mkApp (mkCId "spot_MazaKrastaStreet") []
+  gf Gspot_Pushkin11 = mkApp (mkCId "spot_Pushkin11") []
+  gf Gspot_SpekaStreet = mkApp (mkCId "spot_SpekaStreet") []
+  gf Gspot_Spikeri = mkApp (mkCId "spot_Spikeri") []
+  gf Gspot_SviestaPika = mkApp (mkCId "spot_SviestaPika") []
+  gf Gspot_TheAbrenesStreetBusStation = mkApp (mkCId "spot_TheAbrenesStreetBusStation") []
+  gf Gspot_TheBookShopsJanusAndGora = mkApp (mkCId "spot_TheBookShopsJanusAndGora") []
+  gf Gspot_TheBusStation = mkApp (mkCId "spot_TheBusStation") []
+  gf Gspot_TheCentralMarketPavilions = mkApp (mkCId "spot_TheCentralMarketPavilions") []
+  gf Gspot_TheCentralMarketShoemaker = mkApp (mkCId "spot_TheCentralMarketShoemaker") []
+  gf Gspot_TheDaugavaSwimmingSpot = mkApp (mkCId "spot_TheDaugavaSwimmingSpot") []
+  gf Gspot_TheFreeRigaNeighborhoodResidence = mkApp (mkCId "spot_TheFreeRigaNeighborhoodResidence") []
+  gf Gspot_TheGhettoMuseum = mkApp (mkCId "spot_TheGhettoMuseum") []
+  gf Gspot_TheGreenField = mkApp (mkCId "spot_TheGreenField") []
+  gf Gspot_TheHummusTeam = mkApp (mkCId "spot_TheHummusTeam") []
+  gf Gspot_TheIndustrialGoodsMarket = mkApp (mkCId "spot_TheIndustrialGoodsMarket") []
+  gf Gspot_TheJesusChurch = mkApp (mkCId "spot_TheJesusChurch") []
+  gf Gspot_TheNightMarket = mkApp (mkCId "spot_TheNightMarket") []
+  gf Gspot_TheOrthodoxChurch = mkApp (mkCId "spot_TheOrthodoxChurch") []
+  gf Gspot_ThePan = mkApp (mkCId "spot_ThePan") []
+  gf Gspot_ThePushkinStreetPrintShop = mkApp (mkCId "spot_ThePushkinStreetPrintShop") []
+  gf Gspot_TheRedCrossSocialCenter = mkApp (mkCId "spot_TheRedCrossSocialCenter") []
+  gf Gspot_TheRiversideGallery = mkApp (mkCId "spot_TheRiversideGallery") []
+  gf Gspot_TheScienceAcademy = mkApp (mkCId "spot_TheScienceAcademy") []
+  gf Gspot_TheSoyShop = mkApp (mkCId "spot_TheSoyShop") []
+  gf Gspot_TheSpikeriPromenade = mkApp (mkCId "spot_TheSpikeriPromenade") []
+  gf Gspot_TheSynagogueMemorial = mkApp (mkCId "spot_TheSynagogueMemorial") []
+  gf Gspot_TheTunnel = mkApp (mkCId "spot_TheTunnel") []
+  gf Gspot_TheVeraMuhinasMemorialHouse = mkApp (mkCId "spot_TheVeraMuhinasMemorialHouse") []
+  gf Gspot_VingrumaClub = mkApp (mkCId "spot_VingrumaClub") []
 
   fg t =
     case unApp t of
@@ -427,6 +515,44 @@ instance Gf GSpot where
       Just (i,[]) | i == mkCId "T17" -> GT17 
       Just (i,[]) | i == mkCId "Terapija" -> GTerapija 
       Just (i,[]) | i == mkCId "University" -> GUniversity 
+      Just (i,[]) | i == mkCId "spot_Agroprojekts" -> Gspot_Agroprojekts 
+      Just (i,[]) | i == mkCId "spot_Banuzis" -> Gspot_Banuzis 
+      Just (i,[]) | i == mkCId "spot_CafeRosemary" -> Gspot_CafeRosemary 
+      Just (i,[]) | i == mkCId "spot_DagdasStreet" -> Gspot_DagdasStreet 
+      Just (i,[]) | i == mkCId "spot_Deficits" -> Gspot_Deficits 
+      Just (i,[]) | i == mkCId "spot_GoodwillStudio" -> Gspot_GoodwillStudio 
+      Just (i,[]) | i == mkCId "spot_Idioma" -> Gspot_Idioma 
+      Just (i,[]) | i == mkCId "spot_Latgalite" -> Gspot_Latgalite 
+      Just (i,[]) | i == mkCId "spot_MazaKrastaStreet" -> Gspot_MazaKrastaStreet 
+      Just (i,[]) | i == mkCId "spot_Pushkin11" -> Gspot_Pushkin11 
+      Just (i,[]) | i == mkCId "spot_SpekaStreet" -> Gspot_SpekaStreet 
+      Just (i,[]) | i == mkCId "spot_Spikeri" -> Gspot_Spikeri 
+      Just (i,[]) | i == mkCId "spot_SviestaPika" -> Gspot_SviestaPika 
+      Just (i,[]) | i == mkCId "spot_TheAbrenesStreetBusStation" -> Gspot_TheAbrenesStreetBusStation 
+      Just (i,[]) | i == mkCId "spot_TheBookShopsJanusAndGora" -> Gspot_TheBookShopsJanusAndGora 
+      Just (i,[]) | i == mkCId "spot_TheBusStation" -> Gspot_TheBusStation 
+      Just (i,[]) | i == mkCId "spot_TheCentralMarketPavilions" -> Gspot_TheCentralMarketPavilions 
+      Just (i,[]) | i == mkCId "spot_TheCentralMarketShoemaker" -> Gspot_TheCentralMarketShoemaker 
+      Just (i,[]) | i == mkCId "spot_TheDaugavaSwimmingSpot" -> Gspot_TheDaugavaSwimmingSpot 
+      Just (i,[]) | i == mkCId "spot_TheFreeRigaNeighborhoodResidence" -> Gspot_TheFreeRigaNeighborhoodResidence 
+      Just (i,[]) | i == mkCId "spot_TheGhettoMuseum" -> Gspot_TheGhettoMuseum 
+      Just (i,[]) | i == mkCId "spot_TheGreenField" -> Gspot_TheGreenField 
+      Just (i,[]) | i == mkCId "spot_TheHummusTeam" -> Gspot_TheHummusTeam 
+      Just (i,[]) | i == mkCId "spot_TheIndustrialGoodsMarket" -> Gspot_TheIndustrialGoodsMarket 
+      Just (i,[]) | i == mkCId "spot_TheJesusChurch" -> Gspot_TheJesusChurch 
+      Just (i,[]) | i == mkCId "spot_TheNightMarket" -> Gspot_TheNightMarket 
+      Just (i,[]) | i == mkCId "spot_TheOrthodoxChurch" -> Gspot_TheOrthodoxChurch 
+      Just (i,[]) | i == mkCId "spot_ThePan" -> Gspot_ThePan 
+      Just (i,[]) | i == mkCId "spot_ThePushkinStreetPrintShop" -> Gspot_ThePushkinStreetPrintShop 
+      Just (i,[]) | i == mkCId "spot_TheRedCrossSocialCenter" -> Gspot_TheRedCrossSocialCenter 
+      Just (i,[]) | i == mkCId "spot_TheRiversideGallery" -> Gspot_TheRiversideGallery 
+      Just (i,[]) | i == mkCId "spot_TheScienceAcademy" -> Gspot_TheScienceAcademy 
+      Just (i,[]) | i == mkCId "spot_TheSoyShop" -> Gspot_TheSoyShop 
+      Just (i,[]) | i == mkCId "spot_TheSpikeriPromenade" -> Gspot_TheSpikeriPromenade 
+      Just (i,[]) | i == mkCId "spot_TheSynagogueMemorial" -> Gspot_TheSynagogueMemorial 
+      Just (i,[]) | i == mkCId "spot_TheTunnel" -> Gspot_TheTunnel 
+      Just (i,[]) | i == mkCId "spot_TheVeraMuhinasMemorialHouse" -> Gspot_TheVeraMuhinasMemorialHouse 
+      Just (i,[]) | i == mkCId "spot_VingrumaClub" -> Gspot_VingrumaClub 
 
 
       _ -> error ("no Spot " ++ show t)

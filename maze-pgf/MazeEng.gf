@@ -36,6 +36,10 @@ in {
     South = mkDoor "south from";
     West  = mkDoor "west from";
     East  = mkDoor "east from";
+    NorthEast = mkDoor "northeast from";
+    NorthWest = mkDoor "northwest from";
+    SouthEast = mkDoor "southeast from";
+    SouthWest = mkDoor "southwest from";
 
   oper mkDoor : Str -> Door;
   oper mkDoor s = lin Door (mkPrep s);

@@ -56,6 +56,7 @@ abstract Maze = Numeral ** {
     DoorConflict : Spot -> Spot -> Door -> Door -> Fail;
 
     North, South, West, East : Door;
+    NorthWest, SouthEast, SouthWest, NorthEast : Door;
     Euro, Cat, Dog, Watermelon, Bike : Kind;
     Small, Large : Prop;
 }

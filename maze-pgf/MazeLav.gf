@@ -7,10 +7,10 @@ in {
   oper mkDoor s = lin Door (mkPrep ("uz" ++ s) Gen Dat);
 
   lin
-    North = mkDoor "ziemeļiem";
-    South = mkDoor "dienvidiem";
-    West  = mkDoor "rietumiem";
-    East  = mkDoor "austrumiem";
+    North = mkDoor "ziemeļiem no";
+    South = mkDoor "dienvidiem no";
+    West  = mkDoor "rietumiem no";
+    East  = mkDoor "austrumiem no";
 
     Watermelon = mkCN (mkN "arbūzs");
 }
