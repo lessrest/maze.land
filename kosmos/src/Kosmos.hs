@@ -7,10 +7,13 @@
 #endif
 
 module Kosmos
-  ( main
+  ( start
+  , Game (..)
+  , PGF
   , PGF.linearizeAll
   , fetchGrammar
   , explore
+  , expand
   , relevantFacts
   , capitalize
   ) where
@@ -47,7 +50,7 @@ foreign import javascript interruptible
 
 -- Some initial assumptions using the "Riga" game grammar.
 example1 :: PGF -> [GFact]
-example1 g = example g
+example1 g = grok g
   [ "Terapija is north from the central market"
   , "four big watermelons are in the central market"
   , "rule: when the player is in the central market "
@@ -58,7 +61,7 @@ example1 g = example g
 
 lastadijaSpots :: PGF -> IO [GFact]
 lastadijaSpots g =
-  example g . lines <$> readFile "../lastadija.txt"
+  grok g . lines <$> readFile "../lastadija.txt"
 
 -- Try to apply a core rule to a list of assumptions,
 -- producing (when possible) a new list of assumptions.
@@ -76,8 +79,9 @@ apply facts = \case
 
 -- Produce all possible outcomes from applying any one core rule
 -- to a list of assumptions.
-explore :: [GFact] -> [GCore] -> [(GCore, [GFact])]
-explore premises = mapMaybe (\x -> fmap (x,) (apply premises x))
+explore :: ([GCore], [GFact]) -> [(GCore, [GFact])]
+explore (cores, premises) =
+  mapMaybe (\x -> fmap (x,) (apply premises x)) cores
 
 core :: (GCore -> GCore) -> GCore
 core = ($ GTrivial)
@@ -94,49 +98,46 @@ relevantFacts facts =
       in filter p facts
     _ -> []
 
+infer :: GFact -> [GFact]
+infer = \case
+  -- Reverse doors.
+  GSpotHasDoor src how dst ->
+    [ GSpotHasDoor src how dst
+    , GSpotHasDoor dst (back how) src ]
+  x ->
+    [x]
+
 -- Expand syntactic facts and extract core rules.
 -- (We should probably also use subtype for "core facts.")
-expand :: [GFact] -> Either GFail ([GCore], [GFact])
-expand = fmap (foldMap stage2) . check . foldMap stage1
-  where
+expand :: [GFact] -> ([GCore], [GFact])
+expand = foldMap $
+  \case
+    -- Make doors into player movement rules.
+    GSpotHasDoor src how dst ->
+      ( [core ( GTaking (GSpotHasItem src GPlayer)
+              . GGiving (GSpotHasItem dst GPlayer)
+              . GKeeping (GSpotHasDoor src how dst))]
+      , [GSpotHasDoor src how dst]
+      )
 
-    stage1 :: GFact -> [GFact]
-    stage1 = \case
-      -- Reverse doors.
-      GSpotHasDoor src how dst ->
-        [ GSpotHasDoor src how dst
-        , GSpotHasDoor dst (back how) src ]
-      x ->
-        [x]
+    -- Expand `while' rules to core rules.
+    GRuleApplies (GWhileRule fact deed boon) ->
+      ([ GKeeping fact
+          (GKeeping (GRuleApplies (GWhileRule fact deed boon))
+            (case deed of
+               GConsumption need ->
+                 GTaking (GYouHaveItem need)
+                   (GGiving (GYouHaveItem boon) GTrivial)
+               GPresumption need ->
+                 GKeeping (GYouHaveItem need)
+                   (GGiving (GYouHaveItem boon) GTrivial)))
+       ], [GRuleApplies (GWhileRule fact deed boon)])
 
-    stage2 :: GFact -> ([GCore], [GFact])
-    stage2 = \case
-      -- Make doors into player movement rules.
-      GSpotHasDoor src how dst ->
-        ( [core ( GTaking (GSpotHasItem src GPlayer)
-                . GGiving (GSpotHasItem dst GPlayer)
-                . GKeeping (GSpotHasDoor src how dst))]
-        , [GSpotHasDoor src how dst]
-        )
+    -- Expand aggregate items to multiple items.
+    GYouHaveItem item ->
+      ([], map GYouHaveItem (expandAggregateItem item))
 
-      -- Expand `while' rules to core rules.
-      GRuleApplies (GWhileRule fact deed boon) ->
-        ([ GKeeping fact
-            (GKeeping (GRuleApplies (GWhileRule fact deed boon))
-              (case deed of
-                 GConsumption need ->
-                   GTaking (GYouHaveItem need)
-                     (GGiving (GYouHaveItem boon) GTrivial)
-                 GPresumption need ->
-                   GKeeping (GYouHaveItem need)
-                     (GGiving (GYouHaveItem boon) GTrivial)))
-         ], [GRuleApplies (GWhileRule fact deed boon)])
-
-      -- Expand aggregate items to multiple items
-      GYouHaveItem item ->
-        ([], map GYouHaveItem (expandAggregateItem item))
-
-      x -> ([], [x])
+    x -> ([], [x])
 
 expandAggregateItem :: GItem -> [GItem]
 expandAggregateItem =
@@ -199,22 +200,22 @@ back = \case
   GSouthWest -> GNorthEast
   GSouthEast -> GNorthWest
 
-example :: PGF -> [String] -> [GFact]
-example g ss =
+grok :: PGF -> [String] -> [GFact]
+grok g ss =
   let xs = map (\x -> (x, parseFact g x)) ss
   in map (\(s, x) -> maybe (error s) id x) $ xs
 
-run :: PGF -> [GFact] -> IO ()
-run g x = do
-  case expand x of
-    Left a -> mapM_ putStrLn (yell g a)
-    Right (a, b) -> do
-      putStrLn "* Cores:\n"
-      yellSet g a
-      putStrLn "* Facts:\n"
-      yellSet g b
-      putStrLn "* Explore:\n"
-      mapM_ (\(x, _) -> putStrLn "* Option\n" >> mapM_ putStrLn (yell g x)) (explore b a)
+-- run :: PGF -> [GFact] -> IO ()
+-- run g x = do
+--   case expand x of
+--     Left a -> mapM_ putStrLn (yell g a)
+--     Right (a, b) -> do
+--       putStrLn "* Cores:\n"
+--       yellSet g a
+--       putStrLn "* Facts:\n"
+--       yellSet g b
+--       putStrLn "* Explore:\n"
+--       mapM_ (\(x, _) -> putStrLn "* Option\n" >> mapM_ putStrLn (yell g x)) (explore b a)
 
 yellSet :: (Foldable t, Gf a, Show a) => PGF -> t a -> IO ()
 yellSet g xs =
@@ -234,13 +235,22 @@ fetchGrammar :: String -> IO PGF
 fetchGrammar x =
   PGF.Internal.decode . fromStrict <$> fetchBytes x
 
-main :: PGF -> IO (Either GFail ([GCore], [GFact]))
-main pgf = do
+start :: PGF -> IO (Either GFail Game)
+start pgf = do
   putStrLn "Haskell: calling JavaScript to fetch PGF..."
   bs2 <- fetchBytes "lastadija.txt"
   putStrLn $ "Haskell: PGF has languages " ++ show (PGF.languages pgf)
   let txt = Text.unpack (Text.decodeUtf8 bs2)
-  return (expand (example pgf (lines txt)))
+  return $
+    ( fmap Game
+    . check
+    . foldMap infer
+    . grok pgf
+    . lines
+    ) txt
+
+data Game = Game
+  { gameFacts :: [GFact] }
 
 #else
 

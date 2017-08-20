@@ -88,6 +88,6 @@ executable kosmos
  build-depends: kosmos,
    base >= 4.8 && < 4.10,
    reflex, reflex-dom,
-   text
+   text, containers
  if impl(ghcjs)
    build-depends: ghcjs-base

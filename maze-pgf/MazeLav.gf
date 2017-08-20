@@ -18,6 +18,6 @@ in {
     SouthEast = mkDoor "dienvidaustromos no";
 
     Watermelon = mkCN (mkN "arbūzs");
-
+    Euro = mkCN (mkN "euro");
     Player = you_NP;
 }
