@@ -12,5 +12,12 @@ in {
     West  = mkDoor "rietumiem no";
     East  = mkDoor "austrumiem no";
 
+    NorthWest = mkDoor "ziemeļrietumos no";
+    SouthWest = mkDoor "dienvidrietumos no";
+    NorthEast = mkDoor "ziemeļaustrumos no";
+    SouthEast = mkDoor "dienvidaustromos no";
+
     Watermelon = mkCN (mkN "arbūzs");
+
+    Player = you_NP;
 }

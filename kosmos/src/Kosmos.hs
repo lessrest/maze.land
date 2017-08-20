@@ -6,7 +6,14 @@
 {-# Language JavaScriptFFI #-}
 #endif
 
-module Kosmos where
+module Kosmos
+  ( main
+  , PGF.linearizeAll
+  , fetchGrammar
+  , explore
+  , relevantFacts
+  , capitalize
+  ) where
 
 import Riga
 import PGF (PGF)
@@ -74,6 +81,18 @@ explore premises = mapMaybe (\x -> fmap (x,) (apply premises x))
 
 core :: (GCore -> GCore) -> GCore
 core = ($ GTrivial)
+
+-- Find the facts pertaining to the player's current situation.
+relevantFacts :: [GFact] -> [GFact]
+relevantFacts facts =
+  case List.find (\case { GSpotHasItem spot GPlayer -> True ; _ -> False }) facts of
+    Just (GSpotHasItem spot GPlayer) ->
+      let p (GSpotHasItem x _)   | x == spot = True
+          p (GSpotHasDoor _ _ x) | x == spot = True
+          p (GYouHaveItem _) = True
+          p _ = False
+      in filter p facts
+    _ -> []
 
 -- Expand syntactic facts and extract core rules.
 -- (We should probably also use subtype for "core facts.")
@@ -211,15 +230,17 @@ fetchBytes url = f <$> fetchBase64 (JS.pack url)
   where
     f = BS64.decodeLenient . Text.encodeUtf8 . JS.textFromJSVal
 
-main :: IO ()
-main = do
+fetchGrammar :: String -> IO PGF
+fetchGrammar x =
+  PGF.Internal.decode . fromStrict <$> fetchBytes x
+
+main :: PGF -> IO (Either GFail ([GCore], [GFact]))
+main pgf = do
   putStrLn "Haskell: calling JavaScript to fetch PGF..."
-  bs <- fetchBytes "lastadija.pgf"
   bs2 <- fetchBytes "lastadija.txt"
-  let pgf = PGF.Internal.decode (fromStrict bs)
   putStrLn $ "Haskell: PGF has languages " ++ show (PGF.languages pgf)
   let txt = Text.unpack (Text.decodeUtf8 bs2)
-  run pgf (example pgf (lines txt))
+  return (expand (example pgf (lines txt)))
 
 #else
 
@@ -229,3 +250,5 @@ main = do
   lastadijaSpots g >>= run g
 
 #endif
+
+capitalize = capitInit

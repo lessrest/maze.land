@@ -69,7 +69,7 @@ in {
           (mkS (mkCl you_NP (mkVP (mkV2 get_V) item))));
 
     -- Residence spot = mkCl you_NP (mkVP (mkAdv in_Prep spot));
-    Player = mkNP the_Det (mkCN (mkN "player"));
+    Player = you_NP;
 
   lin
     -- RuleLine rule =

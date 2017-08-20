@@ -7,6 +7,12 @@ in {
     South = mkDoor "söderut från";
     West  = mkDoor "västerut från";
     East  = mkDoor "österut från";
+    NorthWest = mkDoor "nordvästerut från";
+    SouthEast = mkDoor "sydösterut från";
+    SouthWest  = mkDoor "sydvästerut från";
+    NorthEast  = mkDoor "nordösterut från";
+
+    Player = you_NP;
 
   oper mkDoor : Str -> Door;
   oper mkDoor s = lin Door (mkPrep s);
@@ -23,10 +29,4 @@ in {
     get_V = mkV "få";
     spend_V = mkV "spenderar";
     use_V = mkV "använder";
-
-  lin
-    FactItem fact =
-      mkNP the_Det (mkCN (mkCN fact_N) (mkS fact));
-  oper
-    fact_N = mkN "faktum" "faktumet" "fakta" "faktumen";
 }

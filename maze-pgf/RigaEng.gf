@@ -48,5 +48,4 @@ in {
     spot_TheTunnel = mkSpot "the tunnel";
     spot_TheVeraMuhinasMemorialHouse = mkSpot "the Vera Muhinas memorial house";
     spot_VingrumaClub = mkSpot "Vingruma Club";
-
 }
