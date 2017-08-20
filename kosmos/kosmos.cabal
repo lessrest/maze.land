@@ -15,22 +15,70 @@ library
  exposed-modules:
   Kosmos, Riga
  ghc-options: -Wall
- hs-source-dirs: src
+ hs-source-dirs: src, src-pgf
  default-language: Haskell2010
  default-extensions:
-  BangPatterns,
   LambdaCase,
-  OverloadedStrings,
   GeneralizedNewtypeDeriving,
   DeriveDataTypeable,
   DeriveGeneric
  build-depends:
   base >= 4.8 && < 4.10,
-  gf >= 3.8 && <= 4.0,
   mtl >= 2.2.1 && < 2.3,
-  containers >= 0.5 && <= 0.6
+  containers >= 0.5 && <= 0.6,
+  array,
+  bytestring,
+  utf8-string,
+  random,
+  pretty,
+  exceptions,
+  base64-bytestring,
+  text
  if impl(ghcjs)
   build-depends: ghcjs-base
+  js-sources:
+   jsbits/base64js.min.js
+   jsbits/kosmos.js
+
+ exposed-modules: 
+  PGF
+  PGF.Internal
+  PGF.Lexing
+  PGF.LexingAGreek
+  PGF.Utilities
+  PGF.Haskell
+
+ other-modules:
+  PGF.Data
+  PGF.Macros
+  PGF.Binary
+  PGF.Optimize
+  PGF.Printer
+  PGF.CId
+  PGF.Expr
+  PGF.Generate
+  PGF.Linearize
+  PGF.Morphology
+  PGF.Paraphrase
+  PGF.Parse
+  PGF.Probabilistic
+  PGF.SortTop
+  PGF.Tree
+  PGF.Type
+  PGF.TypeCheck
+  PGF.Forest
+  PGF.TrieMap
+  PGF.VisualizeTree
+  PGF.ByteCode
+  PGF.OldBinary
+  
+ hs-source-dirs: src-pgf-binary
+ other-modules:
+  Data.Binary
+  Data.Binary.Put
+  Data.Binary.Get
+  Data.Binary.Builder
+  Data.Binary.IEEE754
   
 executable kosmos
  default-language: Haskell2010
@@ -38,11 +86,6 @@ executable kosmos
  main-is: kosmos-cli.hs
  ghc-options: -Wall
  build-depends: kosmos,
-   base >= 4.8 && < 4.10,
-   gf >= 3.8 && <= 4.0,
-   bytestring == 0.10.*,
-   base64-bytestring,
-   array,
-   containers
- if impl(haste)
-   build-depends: haste-lib
+   base >= 4.8 && < 4.10
+ if impl(ghcjs)
+   build-depends: ghcjs-base
