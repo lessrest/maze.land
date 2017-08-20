@@ -1,4 +1,5 @@
 {-# Language CPP #-}
+{-# Language TupleSections #-}
 {-# Language OverloadedStrings #-}
 
 #ifdef __GHCJS__
@@ -32,9 +33,9 @@ import qualified Data.ByteString as BS
 import Data.ByteString.Lazy (fromStrict)
 import qualified Data.ByteString.Base64 as BS64
 
-foreign import javascript unsafe
-  "fetchBase64($1, $2)"
-  fetchBase64 :: JS.JSString -> Callback (JSVal -> IO ()) -> IO ()
+foreign import javascript interruptible
+  "fetchBase64($1, $c);"
+  fetchBase64 :: JS.JSString -> IO JSVal
 #endif
 
 -- Some initial assumptions using the "Riga" game grammar.
@@ -68,8 +69,8 @@ apply facts = \case
 
 -- Produce all possible outcomes from applying any one core rule
 -- to a list of assumptions.
-explore :: [GFact] -> [GCore] -> [[GFact]]
-explore premises = mapMaybe (apply premises)
+explore :: [GFact] -> [GCore] -> [(GCore, [GFact])]
+explore premises = mapMaybe (\x -> fmap (x,) (apply premises x))
 
 core :: (GCore -> GCore) -> GCore
 core = ($ GTrivial)
@@ -152,44 +153,6 @@ check xs =
               _ -> Nothing) xs
     bad _ = Nothing
 
--- data Item
---   = One GKind
---   deriving (Eq, Ord, Show)
-
--- data Fact
---   = Placement GSpot Item
---   | Residence GSpot
---   | Possession Item
---   | Ruling Rule
---   deriving (Eq, Ord, Show)
-
--- data Need
---   = Consumption Fact
---   | Presumption Fact
---   deriving (Eq, Ord, Show)
-
--- data Deed
---   = Produce Fact
---   | Consume Fact
---   deriving (Eq, Ord, Show)
-
--- data Rule
---   = Rule [Need] [Fact]
---   deriving (Eq, Ord, Show)
-
--- grok :: GFact -> [Fact]
--- grok = \case
---   GSpotHasItem gSpot gItem ->
---     map (Placement gSpot) (grokItem gItem)
-
---   where
---     grokItem = \case
---       GBoth a b -> grokItem a ++ grokItem b
---       GCount GSome1 x -> [One x]
---       GCount GSome2 x -> [One x, One x]
---       GCount GSome3 x -> [One x, One x, One x]
---       GCount GSome4 x -> [One x, One x, One x, One x]
-
 parseFact :: PGF -> String -> Maybe GFact
 parseFact g s =
   let parses = PGF.parseAllLang g (PGF.startCat g) s
@@ -232,19 +195,7 @@ run g x = do
       putStrLn "* Facts:\n"
       yellSet g b
       putStrLn "* Explore:\n"
-      mapM_ (\x -> putStrLn "* Option\n" >> yellSet g x) (explore b a)
-
-      -- putStrLn ""
-      -- yellSet g (wishes g a GTerapija)
-
--- wishes :: PGF -> Set GFact -> GSpot -> Set GWish
--- wishes _ xs spot =
---   flip foldMap xs $
---     \case
---       GYIsDoorFromX dst how src
---         | spot == dst
---           -> singleton (GWalk how src dst)
---       _ -> mempty
+      mapM_ (\(x, _) -> putStrLn "* Option\n" >> mapM_ putStrLn (yell g x)) (explore b a)
 
 yellSet :: (Foldable t, Gf a, Show a) => PGF -> t a -> IO ()
 yellSet g xs =
@@ -255,20 +206,20 @@ readGrammar = PGF.readPGF "Riga.pgf"
 
 #if __GHCJS__
 
-fetchBytes :: String -> (BS.ByteString -> IO ()) -> IO ()
-fetchBytes url f = do
-  cb <- asyncCallback1 (f . BS64.decodeLenient . Text.encodeUtf8 . JS.textFromJSVal)
-  fetchBase64 (JS.pack url) cb
+fetchBytes :: String -> IO BS.ByteString
+fetchBytes url = f <$> fetchBase64 (JS.pack url)
+  where
+    f = BS64.decodeLenient . Text.encodeUtf8 . JS.textFromJSVal
 
 main :: IO ()
 main = do
   putStrLn "Haskell: calling JavaScript to fetch PGF..."
-  fetchBytes "lastadija.pgf" $ \bs -> do
-    let pgf = PGF.Internal.decode (fromStrict bs)
-    putStrLn $ "Haskell: PGF has languages " ++ show (PGF.languages pgf)
-    fetchBytes "lastadija.txt" $ \bs2 -> do
-      let txt = Text.unpack (Text.decodeUtf8 bs2)
-      run pgf (example pgf (lines txt))
+  bs <- fetchBytes "lastadija.pgf"
+  bs2 <- fetchBytes "lastadija.txt"
+  let pgf = PGF.Internal.decode (fromStrict bs)
+  putStrLn $ "Haskell: PGF has languages " ++ show (PGF.languages pgf)
+  let txt = Text.unpack (Text.decodeUtf8 bs2)
+  run pgf (example pgf (lines txt))
 
 #else
 

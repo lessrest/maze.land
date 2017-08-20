@@ -12,7 +12,7 @@ incomplete concrete MazeI of Maze = {
     Some = Numeral;
 
     Fact = Cl;
-    Deed = VP;
+    Need = VP;
     Rule = S;
 
     Core1 = VP;

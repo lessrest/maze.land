@@ -62,7 +62,6 @@ in {
 
     RuleApplies rule = mkCl (mkVP (mkVS (mkV "hold")) rule);
 
-    -- WhileRule : Fact -> Deed -> Item -> Rule;
     WhileRule fact pred item =
       mkS (mkAdv when_Subj (mkS fact))
         (mkS if_then_Conj

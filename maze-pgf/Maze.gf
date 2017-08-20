@@ -14,7 +14,7 @@ abstract Maze = Numeral ** {
     Some;  -- A cardinality, e.g. "4"
 
     Fact;  -- A state of affairs, e.g. "the market is east of the river"
-    Deed;  -- An action, e.g. "go west" or "say hello"
+    Need;  -- A rule demand, e.g. "spend 1 euro"
     Rule;  -- A possibility, e.g. "spend 4 euros and get a burger"
 
     Core;  -- An abstract core rule
@@ -35,20 +35,17 @@ abstract Maze = Numeral ** {
     YouHaveItem : Item -> Fact;
     RuleApplies : Rule -> Fact;
 
-    -- Walk : Door -> Spot -> Spot -> Deed;
+    Consumption : Item -> Need;
+    Presumption : Item -> Need;
 
-    Consumption : Item -> Deed;
-    Presumption : Item -> Deed;
+    WhileRule : Fact -> Need -> Item -> Rule;
 
-    WhileRule : Fact -> Deed -> Item -> Rule;
-
-    CoreRule2 : Deed -> Fact -> Rule;
+    CoreRule2 : Need -> Fact -> Rule;
 
     Trivial : Core;
     Keeping : Fact -> Core -> Core;
     Taking  : Fact -> Core -> Core;
     Giving  : Fact -> Core -> Core;
-    Doing   : Deed -> Core -> Core;
 
     Some1, Some2, Some3, Some4 : Some;
     SomeNumber : Numeral -> Some;

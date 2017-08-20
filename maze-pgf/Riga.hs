@@ -42,16 +42,10 @@ instance Gf GFloat where
 ----------------------------------------------------
 
 data GCore =
-   GDoing GDeed GCore 
- | GGiving GFact GCore 
+   GGiving GFact GCore 
  | GKeeping GFact GCore 
  | GTaking GFact GCore 
  | GTrivial 
-  deriving (Show, Eq, Ord)
-
-data GDeed =
-   GConsumption GItem 
- | GPresumption GItem 
   deriving (Show, Eq, Ord)
 
 data GDig =
@@ -125,6 +119,11 @@ data GLine =
  | GYouSee GItem 
   deriving (Show, Eq, Ord)
 
+data GNeed =
+   GConsumption GItem 
+ | GPresumption GItem 
+  deriving (Show, Eq, Ord)
+
 data GNumeral = Gnum GSub1000000 
   deriving (Show, Eq, Ord)
 
@@ -134,8 +133,8 @@ data GProp =
   deriving (Show, Eq, Ord)
 
 data GRule =
-   GCoreRule2 GDeed GFact 
- | GWhileRule GFact GDeed GItem 
+   GCoreRule2 GNeed GFact 
+ | GWhileRule GFact GNeed GItem 
   deriving (Show, Eq, Ord)
 
 data GSome =
@@ -220,7 +219,6 @@ data GSub1000000 =
 
 
 instance Gf GCore where
-  gf (GDoing x1 x2) = mkApp (mkCId "Doing") [gf x1, gf x2]
   gf (GGiving x1 x2) = mkApp (mkCId "Giving") [gf x1, gf x2]
   gf (GKeeping x1 x2) = mkApp (mkCId "Keeping") [gf x1, gf x2]
   gf (GTaking x1 x2) = mkApp (mkCId "Taking") [gf x1, gf x2]
@@ -228,7 +226,6 @@ instance Gf GCore where
 
   fg t =
     case unApp t of
-      Just (i,[x1,x2]) | i == mkCId "Doing" -> GDoing (fg x1) (fg x2)
       Just (i,[x1,x2]) | i == mkCId "Giving" -> GGiving (fg x1) (fg x2)
       Just (i,[x1,x2]) | i == mkCId "Keeping" -> GKeeping (fg x1) (fg x2)
       Just (i,[x1,x2]) | i == mkCId "Taking" -> GTaking (fg x1) (fg x2)
@@ -236,18 +233,6 @@ instance Gf GCore where
 
 
       _ -> error ("no Core " ++ show t)
-
-instance Gf GDeed where
-  gf (GConsumption x1) = mkApp (mkCId "Consumption") [gf x1]
-  gf (GPresumption x1) = mkApp (mkCId "Presumption") [gf x1]
-
-  fg t =
-    case unApp t of
-      Just (i,[x1]) | i == mkCId "Consumption" -> GConsumption (fg x1)
-      Just (i,[x1]) | i == mkCId "Presumption" -> GPresumption (fg x1)
-
-
-      _ -> error ("no Deed " ++ show t)
 
 instance Gf GDig where
   gf GD_0 = mkApp (mkCId "D_0") []
@@ -410,6 +395,18 @@ instance Gf GLine where
 
 
       _ -> error ("no Line " ++ show t)
+
+instance Gf GNeed where
+  gf (GConsumption x1) = mkApp (mkCId "Consumption") [gf x1]
+  gf (GPresumption x1) = mkApp (mkCId "Presumption") [gf x1]
+
+  fg t =
+    case unApp t of
+      Just (i,[x1]) | i == mkCId "Consumption" -> GConsumption (fg x1)
+      Just (i,[x1]) | i == mkCId "Presumption" -> GPresumption (fg x1)
+
+
+      _ -> error ("no Need " ++ show t)
 
 instance Gf GNumeral where
   gf (Gnum x1) = mkApp (mkCId "num") [gf x1]
