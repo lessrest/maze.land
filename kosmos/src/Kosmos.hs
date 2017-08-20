@@ -3,6 +3,7 @@ module Kosmos where
 import Riga
 import PGF (PGF)
 import qualified PGF as GF
+import qualified PGF.Internal
 
 import Data.Foldable (Foldable, foldMap, toList)
 import Control.Monad (msum, guard)
