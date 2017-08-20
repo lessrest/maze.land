@@ -27,7 +27,9 @@ import qualified Data.JSString as JS
 import qualified Data.JSString.Text as JS
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text as Text
-import qualified Data.ByteString.Lazy as BS
+import Data.Text (Text)
+import qualified Data.ByteString as BS
+import Data.ByteString.Lazy (fromStrict)
 import qualified Data.ByteString.Base64 as BS64
 
 foreign import javascript unsafe
@@ -253,16 +255,20 @@ readGrammar = PGF.readPGF "Riga.pgf"
 
 #if __GHCJS__
 
+fetchBytes :: String -> (BS.ByteString -> IO ()) -> IO ()
+fetchBytes url f = do
+  cb <- asyncCallback1 (f . BS64.decodeLenient . Text.encodeUtf8 . JS.textFromJSVal)
+  fetchBase64 (JS.pack url) cb
+
 main :: IO ()
 main = do
-  callback <- asyncCallback1 $ \jss -> do
-    putStrLn "Haskell: decoding Base64..."
-    let bs = BS64.decodeLenient (Text.encodeUtf8 (JS.textFromJSVal jss))
-    let pgf = PGF.Internal.decode (BS.fromStrict bs)
-    putStrLn $ "Haskell: PGF has languages " ++ show (PGF.languages pgf)
-
   putStrLn "Haskell: calling JavaScript to fetch PGF..."
-  fetchBase64 "lastadija.pgf" callback
+  fetchBytes "lastadija.pgf" $ \bs -> do
+    let pgf = PGF.Internal.decode (fromStrict bs)
+    putStrLn $ "Haskell: PGF has languages " ++ show (PGF.languages pgf)
+    fetchBytes "lastadija.txt" $ \bs2 -> do
+      let txt = Text.unpack (Text.decodeUtf8 bs2)
+      run pgf (example pgf (lines txt))
 
 #else
 
