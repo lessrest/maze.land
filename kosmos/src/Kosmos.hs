@@ -16,6 +16,8 @@ module Kosmos
   , expand
   , relevantFacts
   , capitalize
+  , coreDeed
+  , playerSpot
   ) where
 
 import Riga
@@ -172,6 +174,33 @@ check xs =
                   -> error $ "you can come from " ++ show dst1 ++ " via " ++ show how1 ++ " ti both" ++ show src1 ++ " and " ++ show src2
               _ -> Nothing) xs
     bad _ = Nothing
+
+coreDeed :: GCore -> Maybe GDeed
+coreDeed = \case
+  GKeeping (GSpotHasItem _ _)
+    (GKeeping (GRuleApplies _)
+      (GTaking (GYouHaveItem a)
+        (GGiving (GYouHaveItem b)
+          GTrivial))) ->
+    Just (GSimpleShoppingDeed b a)
+
+  GTaking (GSpotHasItem src GPlayer)
+    (GGiving (GSpotHasItem dst GPlayer)
+      (GKeeping (GSpotHasDoor _ how _)
+        GTrivial)) ->
+    Just (GSimpleWalkingDeed (back how) dst)
+
+  _ ->
+    Nothing
+
+playerSpot :: [GFact] -> Maybe GSpot
+playerSpot world =
+  case List.find p world of
+    Just (GSpotHasItem x _) -> Just x
+    _ -> Nothing
+  where
+    p (GSpotHasItem _ GPlayer) = True
+    p _ = False
 
 parseFact :: PGF -> String -> Maybe GFact
 parseFact g s =

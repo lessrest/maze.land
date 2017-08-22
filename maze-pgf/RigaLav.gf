@@ -33,12 +33,12 @@ in {
     spot_MazaKrastaStreet = street_NP "Maza Krasta";
     spot_Pushkin11 = mkSpot "Pushkin 11";
     spot_SpekaStreet = street_NP "Speka";
-    spot_Spikeri = mkSpot "Spīķeri";
+    -- spot_Spikeri = mkNP (mkN "Spīķeris" plural);
     spot_SviestaPika = mkNP (mkCN (mkA "sviesta") (mkN "pika"));
     spot_TheAbrenesStreetBusStation = mkNP the_Det (mkCN (street_CN "Abrenes") (mkNP (mkN "autoosta")));
     spot_TheBookShopsJanusAndGora = mkNP thePl_Det (mkCN (mkN "book shop") (mkNP and_Conj (mkNP (mkPN "\"Janus\"")) (mkNP (mkPN "\"Gora\""))));
     spot_TheBusStation = mkNP (mkN "autoosta");
-    spot_TheCentralMarketPavilions = mkNP thePl_Det (mkCN (mkN "tirgus") (mkNP (mkN "paviljons")));
+    spot_TheCentralMarketStands = mkNP thePl_Det (mkN "tirgus");
     spot_TheCentralMarketShoemaker = namedKind (mkN "kurpnieka") (mkNP (mkN "darbnīca"));
     spot_TheDaugavaSwimmingSpot = mkSpot "peldvieta Nr. 1";
     spot_TheFreeRigaNeighborhoodResidence = namedKind (mkN "Free Riga") (mkNP (mkN "rezidence"));
@@ -60,6 +60,11 @@ in {
     spot_TheTunnel = mkNP the_Det coat_N;
     spot_TheVeraMuhinasMemorialHouse = mkSpot "the Vera Muhinas memorial house";
     spot_VingrumaClub = mkSpot "Vingruma Club";
+    spot_TheMilkPavilion = mkSpot "the milk pavilion";
+    spot_TheEmptyPavilion = mkSpot "the empty pavilion";
+    spot_TheVegetablePavilion = mkSpot "the vegetable pavilion";
+    spot_TheFishPavilion = mkSpot "the fish pavilion";
+    spot_OutsideTheUzbekPlace = mkSpot "outside the Uzbek restaurant";
 
   oper
     field_N = mkN "lauks";

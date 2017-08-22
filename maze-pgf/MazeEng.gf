@@ -17,20 +17,6 @@ in {
       )
     );
 
-  -- lincat
-  --   Core = ListVPS;
-  -- lin
-  --   Core2 x y =
-  --     BaseVPS
-  --       (MkVPS (mkTemp futureTense simultaneousAnt) positivePol x)
-  --       (MkVPS (mkTemp futureTense simultaneousAnt) positivePol y);
-  --   CoreN x y =
-  --     ConsVPS
-  --       (MkVPS (mkTemp futureTense simultaneousAnt) positivePol x)
-  --       y;
-  --   CoreLine x =
-  --     mkUtt (PredVPS you_NP (ConjVPS and_Conj x));
-
   lin
     North = mkDoor "north from";
     South = mkDoor "south from";
@@ -48,7 +34,6 @@ in {
     Watermelon = mkCN (mkN "watermelon");
 
   lin
-    -- Production item = mkVP (mkV2 get_V) item;
     Consumption item = mkVP (mkV2 spend_V) item;
     Presumption item = mkVP (mkV2 use_V) item;
   oper
@@ -57,6 +42,12 @@ in {
     use_V = mkV "use";
 
   lin
+
+    SimpleShoppingDeed a b =
+      mkVP
+        (mkVP buy_V2 a)
+        (mkAdv for_Prep b);
+
     FactItem fact =
       mkNP the_Det (mkCN (mkCN (mkN "fact")) (mkS fact));
 
@@ -68,13 +59,9 @@ in {
           (mkS (mkCl you_NP pred))
           (mkS (mkCl you_NP (mkVP (mkV2 get_V) item))));
 
-    -- Residence spot = mkCl you_NP (mkVP (mkAdv in_Prep spot));
     Player = you_NP;
 
   lin
-    -- RuleLine rule =
-    --   mkUtt (mkCl you_NP (mkVP can_VV rule));
-
     RuleLine rule = { s = "rule:" ++ (mkUtt rule).s };
 
     Euro = mkCN (mkN "euro" "euros");

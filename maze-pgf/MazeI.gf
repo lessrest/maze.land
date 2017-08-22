@@ -16,6 +16,9 @@ incomplete concrete MazeI of Maze = {
     Rule = S;
 
     Core1 = VP;
+    Deed = VP;
+
+    Wish = Utt;
 
   lin
 
@@ -45,6 +48,7 @@ incomplete concrete MazeI of Maze = {
 
     LocalRule1 spot deed =
       mkS (mkAdv in_Prep spot) (mkS (mkCl you_NP can_VV deed));
+
     -- CoreRule core =
     --   mkS (mkCl you_NP can_VV core);
 
@@ -61,6 +65,11 @@ incomplete concrete MazeI of Maze = {
            (mkAdv both7and_DConj
              (mkAdv fst dst)
              (mkAdv snd dst)));
+
+    DeedWish deed = mkUtt (mkImp deed);
+
+    SimpleWalkingDeed _ b =
+      mkVP (mkVP go_V) (mkAdv to_Prep b);
 
   -- Lexicon words
   lin

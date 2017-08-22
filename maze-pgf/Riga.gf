@@ -18,7 +18,7 @@ abstract Riga = Maze ** {
     spot_TheAbrenesStreetBusStation : Spot;
     spot_TheBookShopsJanusAndGora : Spot;
     spot_TheBusStation : Spot;
-    spot_TheCentralMarketPavilions : Spot;
+    spot_TheCentralMarketStands : Spot;
     spot_TheCentralMarketShoemaker : Spot;
     spot_TheDaugavaSwimmingSpot : Spot;
     spot_TheFreeRigaNeighborhoodResidence : Spot;
@@ -40,4 +40,10 @@ abstract Riga = Maze ** {
     spot_TheTunnel : Spot;
     spot_TheVeraMuhinasMemorialHouse : Spot;
     spot_VingrumaClub : Spot;
+    spot_TheMilkPavilion : Spot;
+    spot_TheEmptyPavilion : Spot;
+    spot_TheVegetablePavilion : Spot;
+    spot_TheFishPavilion : Spot;
+    spot_OutsideTheUzbekPlace : Spot;
+
 }

@@ -29,4 +29,11 @@ in {
     get_V = mkV "få";
     spend_V = mkV "spenderar";
     use_V = mkV "använder";
+
+
+  lin
+    SimpleShoppingDeed a b =
+      mkVP
+        (mkVP buy_V2 a)
+        (mkAdv for_Prep b);
 }

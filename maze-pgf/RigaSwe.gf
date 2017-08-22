@@ -26,7 +26,7 @@ in {
     spot_TheAbrenesStreetBusStation = mkSpot "busstationen på Abrenesgatan";
     spot_TheBookShopsJanusAndGora = mkNP thePl_Det (mkCN (mkN "bokhandlarna") (mkNP and_Conj (mkNP (mkPN "\"Janus\"")) (mkNP (mkPN "\"Gora\""))));
     spot_TheBusStation = mkSpot "busstationen";
-    spot_TheCentralMarketPavilions = mkTheSpots "centralmarknadens paviljonger";
+    spot_TheCentralMarketStands = mkTheSpots "centralmarknadens stånd";
     spot_TheCentralMarketShoemaker = mkSpot "centralmarknadens skomakare";
     spot_TheDaugavaSwimmingSpot = mkSpot "simplatsen";
     spot_TheFreeRigaNeighborhoodResidence = mkSpot "Free Rigas grannskapsresidens";
@@ -48,4 +48,9 @@ in {
     spot_TheTunnel = mkSpot "tunneln";
     spot_TheVeraMuhinasMemorialHouse = mkSpot "Vera Muhinas minneshus";
     spot_VingrumaClub = mkSpot "Vingrumaklubben";
+    spot_TheMilkPavilion = mkSpot "the milk pavilion";
+    spot_TheEmptyPavilion = mkSpot "the empty pavilion";
+    spot_TheVegetablePavilion = mkSpot "the vegetable pavilion";
+    spot_TheFishPavilion = mkSpot "the fish pavilion";
+    spot_OutsideTheUzbekPlace = mkSpot "outside the Uzbek restaurant";
 }

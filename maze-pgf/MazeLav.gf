@@ -20,4 +20,11 @@ in {
     Watermelon = mkCN (mkN "arbūzs");
     Euro = mkCN (mkN "euro");
     Player = you_NP;
+
+    SimpleShoppingDeed a b =
+      mkVP
+        (mkVP buy_V2 a)
+        (mkAdv par_Prep b);
+
+
 }

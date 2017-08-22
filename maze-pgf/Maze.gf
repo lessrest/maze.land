@@ -18,6 +18,8 @@ abstract Maze = Numeral ** {
     Rule;  -- A possibility, e.g. "spend 4 euros and get a burger"
 
     Core;  -- An abstract core rule
+    Deed;  -- A grammatical expression of a rule (?)
+    Wish;  -- A command
 
   fun
     Count : Some -> Kind -> Item;
@@ -40,12 +42,14 @@ abstract Maze = Numeral ** {
 
     WhileRule : Fact -> Need -> Item -> Rule;
 
-    CoreRule2 : Need -> Fact -> Rule;
-
     Trivial : Core;
     Keeping : Fact -> Core -> Core;
     Taking  : Fact -> Core -> Core;
     Giving  : Fact -> Core -> Core;
+
+    SimpleShoppingDeed : Item -> Item -> Deed;
+    SimpleWalkingDeed : Door -> Spot -> Deed;
+    DeedWish : Deed -> Wish;
 
     Some1, Some2, Some3, Some4 : Some;
     SomeNumber : Numeral -> Some;

@@ -12,7 +12,9 @@ mkDerivation {
     array base base64-bytestring bytestring containers exceptions mtl
     pretty random text utf8-string
   ];
-  executableHaskellDepends = [ base reflex reflex-dom ];
+  executableHaskellDepends = [
+    base containers reflex reflex-dom text
+  ];
   homepage = "https://github.com/mbrock/kosmos";
   description = "Semantics for grammatical mazes";
   license = stdenv.lib.licenses.agpl3;
