@@ -12,19 +12,19 @@ in {
     West  = mkDoor "rietumiem no";
     East  = mkDoor "austrumiem no";
 
-    NorthWest = mkDoor "ziemeļrietumos no";
-    SouthWest = mkDoor "dienvidrietumos no";
-    NorthEast = mkDoor "ziemeļaustrumos no";
-    SouthEast = mkDoor "dienvidaustromos no";
+    NorthWest = mkDoor "ziemeļrietumiem no";
+    SouthWest = mkDoor "dienvidrietumiem no";
+    NorthEast = mkDoor "ziemeļaustrumiem no";
+    SouthEast = mkDoor "dienvidaustromiem no";
 
     Watermelon = mkCN (mkN "arbūzs");
-    Euro = mkCN (mkN "euro");
+    Euro = mkCN (mkN "eiro");
     Player = you_NP;
+
+--    DeedWish deed = mkUtt deed;
 
     SimpleShoppingDeed a b =
       mkVP
         (mkVP buy_V2 a)
         (mkAdv par_Prep b);
-
-
 }

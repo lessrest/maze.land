@@ -1,7 +1,6 @@
 abstract Riga = Maze ** {
   flags startcat = Line;
   fun
-    Market, T17, Synagogue, Terapija, University : Spot;
     spot_Agroprojekts : Spot;
     spot_Banuzis : Spot;
     spot_CafeRosemary : Spot;
@@ -37,6 +36,7 @@ abstract Riga = Maze ** {
     spot_TheSoyShop : Spot;
     spot_TheSpikeriPromenade : Spot;
     spot_TheSynagogueMemorial : Spot;
+    spot_TheSynagogueMemorialFar : Spot;
     spot_TheTunnel : Spot;
     spot_TheVeraMuhinasMemorialHouse : Spot;
     spot_VingrumaClub : Spot;
@@ -45,5 +45,7 @@ abstract Riga = Maze ** {
     spot_TheVegetablePavilion : Spot;
     spot_TheFishPavilion : Spot;
     spot_OutsideTheUzbekPlace : Spot;
-
+    spot_DzirnavuTurgeneva : Spot;
+    spot_RedHouse : Spot;
+    spot_7Tram : Spot;
 }

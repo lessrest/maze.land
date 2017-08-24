@@ -1,5 +1,5 @@
 concrete RigaLav of Riga = MazeLav **
-  open SyntaxLav, ParadigmsLav, LexiconLav
+  open SyntaxLav, ParadigmsLav, LexiconLav, NounLav, ResLav
 in {
   flags coding = utf8;
   oper
@@ -21,22 +21,25 @@ in {
     street_CN : Str -> CN;
     street_CN s = mkCN (mkN s) (mkNP (mkN "iela"));
 
+    street : Str -> NP;
+    street s = mkNP (mkN (s ++ "iela"));
+
   lin
     spot_Agroprojekts = mkSpot "\"Agroprojekts\"";
     spot_Banuzis = mkSpot "Bānūzis";
     spot_CafeRosemary = mkNP (mkCN (mkN "kafejnica") (mkNP (mkPN "Rozmarīns")));
-    spot_DagdasStreet = street_NP "Dagdas";
+    spot_DagdasStreet = street "Dagdas";
     spot_Deficits = mkSpot "\"Deficīts\"";
     spot_GoodwillStudio = mkSpot "\"Goodwill Studio\"";
     spot_Idioma = mkSpot "\"Idioma\"";
     spot_Latgalite = mkSpot "\"Latgalīte\"";
-    spot_MazaKrastaStreet = street_NP "Maza Krasta";
+    spot_MazaKrastaStreet = street "Maza Krasta";
     spot_Pushkin11 = mkSpot "Pushkin 11";
-    spot_SpekaStreet = street_NP "Speka";
-    -- spot_Spikeri = mkNP (mkN "Spīķeris" plural);
+    spot_SpekaStreet = street "Speka";
+    spot_Spikeri = mkNP thePl_Det (mkN "Spīķeris");
     spot_SviestaPika = mkNP (mkCN (mkA "sviesta") (mkN "pika"));
-    spot_TheAbrenesStreetBusStation = mkNP the_Det (mkCN (street_CN "Abrenes") (mkNP (mkN "autoosta")));
-    spot_TheBookShopsJanusAndGora = mkNP thePl_Det (mkCN (mkN "book shop") (mkNP and_Conj (mkNP (mkPN "\"Janus\"")) (mkNP (mkPN "\"Gora\""))));
+    spot_TheAbrenesStreetBusStation = mkNP the_Det (mkCN (mkN "Abrenes iela") (mkNP (mkN "autoosta")));
+    spot_TheBookShopsJanusAndGora = mkNP thePl_Det (mkCN (mkN "grāmatnīca") (mkNP and_Conj (mkNP (mkPN "\"Janus\"")) (mkNP (mkPN "\"Gora\""))));
     spot_TheBusStation = mkNP (mkN "autoosta");
     spot_TheCentralMarketStands = mkNP thePl_Det (mkN "tirgus");
     spot_TheCentralMarketShoemaker = namedKind (mkN "kurpnieka") (mkNP (mkN "darbnīca"));
@@ -55,16 +58,27 @@ in {
     spot_TheRiversideGallery = mkSpot "the Riverside Gallery";
     spot_TheScienceAcademy = mkSpot "the Science Academy";
     spot_TheSoyShop = mkSpot "the soy shop";
-    spot_TheSpikeriPromenade = mkSpot "spīķeru promenade";
+    spot_TheSpikeriPromenade = mkNP (mkN "promenāde");
     spot_TheSynagogueMemorial = mkSpot "the synagogue memorial";
     spot_TheTunnel = mkNP the_Det coat_N;
-    spot_TheVeraMuhinasMemorialHouse = mkSpot "the Vera Muhinas memorial house";
-    spot_VingrumaClub = mkSpot "Vingruma Club";
-    spot_TheMilkPavilion = mkSpot "the milk pavilion";
+    spot_TheVeraMuhinasMemorialHouse = mkNP (mkN "Vera Muhinas mājas");
+    spot_VingrumaClub = mkNP (ApposCN (mkCN (mkN "klubs")) (mkNP (mkPN "Vingruma")));
+    spot_TheMilkPavilion = mkNP (ApposCN (mkCN (mkN "piens")) (mkNP (mkN "paviljons")));
     spot_TheEmptyPavilion = mkSpot "the empty pavilion";
-    spot_TheVegetablePavilion = mkSpot "the vegetable pavilion";
-    spot_TheFishPavilion = mkSpot "the fish pavilion";
+    spot_TheVegetablePavilion = mkNP (ApposCN (mkCN (mkN "sakņe" D5)) (mkNP (mkN "paviljons")));
+    spot_TheFishPavilion = mkNP thePl_Det (ApposCN (mkCN (mkN "zivs" D6)) (mkNP (mkN "paviljons")));
     spot_OutsideTheUzbekPlace = mkSpot "outside the Uzbek restaurant";
+
+  -- Questions!
+  --
+  --  1. "zivju paviljons" / "sakņu paviljons"
+  --      6th declension genitive plural of fish
+  --      5th declension genitive plural of root
+  --
+  --  2. "Vingruma klubs"
+  --     PN -> NP -> NP?
+  --
+  --  3. "ej uz grāmatnīcām Janus, un Gora"?
 
   oper
     field_N = mkN "lauks";

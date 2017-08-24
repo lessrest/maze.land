@@ -1,21 +1,24 @@
 concrete MazeSwe of Maze = MazeI with (Syntax = SyntaxSwe)
-  ** open ParadigmsSwe, LexiconSwe
+  ** open ParadigmsSwe, LexiconSwe, CommonScand
 in {
   flags coding = utf8;
   lin
-    North = mkDoor "norrut från";
-    South = mkDoor "söderut från";
-    West  = mkDoor "västerut från";
-    East  = mkDoor "österut från";
-    NorthWest = mkDoor "nordvästerut från";
-    SouthEast = mkDoor "sydösterut från";
-    SouthWest  = mkDoor "sydvästerut från";
-    NorthEast  = mkDoor "nordösterut från";
+    North = mkDoor "norrut";
+    South = mkDoor "söderut";
+    West  = mkDoor "västerut";
+    East  = mkDoor "österut";
+    NorthWest = mkDoor "nordvästerut";
+    SouthEast = mkDoor "sydösterut";
+    SouthWest  = mkDoor "sydvästerut";
+    NorthEast  = mkDoor "nordösterut";
 
     Player = you_NP;
 
   oper mkDoor : Str -> Door;
-  oper mkDoor s = lin Door (mkPrep s);
+  oper mkDoor s = lin Door
+    { prep = mkPrep (s ++ "från")
+    ; adv = lin Adv { s = s }
+    };
 
   lin
     Watermelon = mkCN (mkN "vattenmelon" "vattenmeloner");
@@ -36,4 +39,8 @@ in {
       mkVP
         (mkVP buy_V2 a)
         (mkAdv for_Prep b);
+
+    TryTo deed = { s = (mkUtt singularImpForm positivePol (mkImp deed)).s };
+    Did deed = { s = (mkS (mkCl you_NP deed)).s ! Main };
+
 }

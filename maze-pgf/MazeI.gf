@@ -4,7 +4,7 @@ incomplete concrete MazeI of Maze = {
     Fail = Utt;
 
     Spot = NP;
-    Door = Prep;
+    Door = { prep : Prep; adv : Adv };
     Item = NP;
 
     Kind = CN;
@@ -15,10 +15,10 @@ incomplete concrete MazeI of Maze = {
     Need = VP;
     Rule = S;
 
-    Core1 = VP;
     Deed = VP;
 
     Wish = Utt;
+    Core1 = VP;
 
   lin
 
@@ -33,24 +33,21 @@ incomplete concrete MazeI of Maze = {
 
     PropKind prop kind = mkCN prop kind;
 
-    SpotHasDoor dst how src = mkCl dst (mkAdv how src);
+    SpotHasDoor dst how src = mkCl dst (mkAdv how.prep src);
     SpotHasItem spot item = mkCl item (mkAdv in_Prep spot);
     YouHaveItem item = mkCl you_NP have_V2 item;
 
     YouSee item  = mkUtt (mkCl you_NP see_V2 item);
     FactLine fact = mkUtt fact;
 
-    Rule1 deed = deed;
-    Rule2 deed1 deed2 =
-      mkS and_Conj
-        (mkS (mkCl you_NP can_VV deed1))
-        (mkS (mkCl you_NP can_VV deed2));
+    -- Rule1 deed = deed;
+    -- Rule2 deed1 deed2 =
+    --   mkS and_Conj
+    --     (mkS (mkCl you_NP can_VV deed1))
+    --     (mkS (mkCl you_NP can_VV deed2));
 
-    LocalRule1 spot deed =
-      mkS (mkAdv in_Prep spot) (mkS (mkCl you_NP can_VV deed));
-
-    -- CoreRule core =
-    --   mkS (mkCl you_NP can_VV core);
+    -- LocalRule1 spot deed =
+    --   mkS (mkAdv in_Prep spot) (mkS (mkCl you_NP can_VV deed));
 
     -- Walk door src dst
     --   = mkImp
@@ -63,13 +60,25 @@ incomplete concrete MazeI of Maze = {
       = mkUtt
          (mkCl src
            (mkAdv both7and_DConj
-             (mkAdv fst dst)
-             (mkAdv snd dst)));
-
-    DeedWish deed = mkUtt (mkImp deed);
+             (mkAdv fst.prep dst)
+             (mkAdv snd.prep dst)));
 
     SimpleWalkingDeed _ b =
       mkVP (mkVP go_V) (mkAdv to_Prep b);
+
+    BuyDeed item = mkVP buy_V2 item;
+    EatDeed item = mkVP eat_V2 item;
+    GoDeed door = mkVP (mkVP go_V) door.adv;
+
+    GeneralRule2 a b =
+      mkS and_Conj (youCore a) (youCore b);
+    GeneralRule3 a b c =
+      mkS and_Conj (mkListS (youCore a) (mkListS (youCore b) (youCore c)));
+    GeneralRule4 a b c d =
+      mkS and_Conj (mkListS (youCore a) (mkListS (youCore b) (mkListS (youCore c) (youCore d))));
+
+  oper youCore : VP -> S;
+  oper youCore x = mkS (mkCl you_NP x);
 
   -- Lexicon words
   lin

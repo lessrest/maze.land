@@ -17,7 +17,7 @@ abstract Maze = Numeral ** {
     Need;  -- A rule demand, e.g. "spend 1 euro"
     Rule;  -- A possibility, e.g. "spend 4 euros and get a burger"
 
-    Core;  -- An abstract core rule
+    Core1;  -- An abstract core rule
     Deed;  -- A grammatical expression of a rule (?)
     Wish;  -- A command
 
@@ -37,19 +37,31 @@ abstract Maze = Numeral ** {
     YouHaveItem : Item -> Fact;
     RuleApplies : Rule -> Fact;
 
-    Consumption : Item -> Need;
-    Presumption : Item -> Need;
+    ItemConsumption : Item -> Core1;
+    ItemPresumption : Item -> Core1;
+    ItemAcquisition : Item -> Core1;
 
-    WhileRule : Fact -> Need -> Item -> Rule;
+    FactConsumption : Fact -> Core1;
+    FactPresumption : Fact -> Core1;
+    FactAcquisition : Fact -> Core1;
 
-    Trivial : Core;
-    Keeping : Fact -> Core -> Core;
-    Taking  : Fact -> Core -> Core;
-    Giving  : Fact -> Core -> Core;
+    -- WhileRule : Fact -> Need -> Item -> Rule;
+
+    GeneralRule2 : Core1 -> Core1 -> Rule;
+    GeneralRule3 : Core1 -> Core1 -> Core1 -> Rule;
+    GeneralRule4 : Core1 -> Core1 -> Core1 -> Core1 -> Rule;
 
     SimpleShoppingDeed : Item -> Item -> Deed;
     SimpleWalkingDeed : Door -> Spot -> Deed;
-    DeedWish : Deed -> Wish;
+
+    BuyDeed : Item -> Deed;
+    EatDeed : Item -> Deed;
+    SellDeed : Item -> Deed;
+    GoDeed  : Door -> Deed;
+    ConnectDeed : Spot -> Door -> Spot -> Deed;
+
+    Did   : Deed -> Line;
+    TryTo : Deed -> Line;
 
     Some1, Some2, Some3, Some4 : Some;
     SomeNumber : Numeral -> Some;
@@ -59,5 +71,6 @@ abstract Maze = Numeral ** {
     North, South, West, East : Door;
     NorthWest, SouthEast, SouthWest, NorthEast : Door;
     Euro, Cat, Dog, Watermelon, Bike : Kind;
+    Knife : Kind;
     Small, Large : Prop;
 }

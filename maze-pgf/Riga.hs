@@ -41,15 +41,22 @@ instance Gf GFloat where
 -- below this line machine-generated
 ----------------------------------------------------
 
-data GCore =
-   GGiving GFact GCore 
- | GKeeping GFact GCore 
- | GTaking GFact GCore 
- | GTrivial 
+data GCore1 =
+   GFactAcquisition GFact 
+ | GFactConsumption GFact 
+ | GFactPresumption GFact 
+ | GItemAcquisition GItem 
+ | GItemConsumption GItem 
+ | GItemPresumption GItem 
   deriving (Show, Eq, Ord)
 
 data GDeed =
-   GSimpleShoppingDeed GItem GItem 
+   GBuyDeed GItem 
+ | GConnectDeed GSpot GDoor GSpot 
+ | GEatDeed GItem 
+ | GGoDeed GDoor 
+ | GSellDeed GItem 
+ | GSimpleShoppingDeed GItem GItem 
  | GSimpleWalkingDeed GDoor GSpot 
   deriving (Show, Eq, Ord)
 
@@ -114,19 +121,17 @@ data GKind =
  | GCat 
  | GDog 
  | GEuro 
+ | GKnife 
  | GPropKind GProp GKind 
  | GWatermelon 
   deriving (Show, Eq, Ord)
 
 data GLine =
-   GFactLine GFact 
+   GDid GDeed 
+ | GFactLine GFact 
  | GRuleLine GRule 
+ | GTryTo GDeed 
  | GYouSee GItem 
-  deriving (Show, Eq, Ord)
-
-data GNeed =
-   GConsumption GItem 
- | GPresumption GItem 
   deriving (Show, Eq, Ord)
 
 data GNumeral = Gnum GSub1000000 
@@ -137,7 +142,10 @@ data GProp =
  | GSmall 
   deriving (Show, Eq, Ord)
 
-data GRule = GWhileRule GFact GNeed GItem 
+data GRule =
+   GGeneralRule2 GCore1 GCore1 
+ | GGeneralRule3 GCore1 GCore1 GCore1 
+ | GGeneralRule4 GCore1 GCore1 GCore1 GCore1 
   deriving (Show, Eq, Ord)
 
 data GSome =
@@ -149,22 +157,20 @@ data GSome =
   deriving (Show, Eq, Ord)
 
 data GSpot =
-   GMarket 
- | GSynagogue 
- | GT17 
- | GTerapija 
- | GUniversity 
+   Gspot_7Tram 
  | Gspot_Agroprojekts 
  | Gspot_Banuzis 
  | Gspot_CafeRosemary 
  | Gspot_DagdasStreet 
  | Gspot_Deficits 
+ | Gspot_DzirnavuTurgeneva 
  | Gspot_GoodwillStudio 
  | Gspot_Idioma 
  | Gspot_Latgalite 
  | Gspot_MazaKrastaStreet 
  | Gspot_OutsideTheUzbekPlace 
  | Gspot_Pushkin11 
+ | Gspot_RedHouse 
  | Gspot_SpekaStreet 
  | Gspot_Spikeri 
  | Gspot_SviestaPika 
@@ -193,6 +199,7 @@ data GSpot =
  | Gspot_TheSoyShop 
  | Gspot_TheSpikeriPromenade 
  | Gspot_TheSynagogueMemorial 
+ | Gspot_TheSynagogueMemorialFar 
  | Gspot_TheTunnel 
  | Gspot_TheVegetablePavilion 
  | Gspot_TheVeraMuhinasMemorialHouse 
@@ -225,32 +232,47 @@ data GSub1000000 =
  | Gpot3plus GSub1000 GSub1000 
   deriving (Show, Eq, Ord)
 
-data GWish = GDeedWish GDeed 
-  deriving (Show, Eq, Ord)
+data GNeed
+
+data GWish
 
 
-instance Gf GCore where
-  gf (GGiving x1 x2) = mkApp (mkCId "Giving") [gf x1, gf x2]
-  gf (GKeeping x1 x2) = mkApp (mkCId "Keeping") [gf x1, gf x2]
-  gf (GTaking x1 x2) = mkApp (mkCId "Taking") [gf x1, gf x2]
-  gf GTrivial = mkApp (mkCId "Trivial") []
+instance Gf GCore1 where
+  gf (GFactAcquisition x1) = mkApp (mkCId "FactAcquisition") [gf x1]
+  gf (GFactConsumption x1) = mkApp (mkCId "FactConsumption") [gf x1]
+  gf (GFactPresumption x1) = mkApp (mkCId "FactPresumption") [gf x1]
+  gf (GItemAcquisition x1) = mkApp (mkCId "ItemAcquisition") [gf x1]
+  gf (GItemConsumption x1) = mkApp (mkCId "ItemConsumption") [gf x1]
+  gf (GItemPresumption x1) = mkApp (mkCId "ItemPresumption") [gf x1]
 
   fg t =
     case unApp t of
-      Just (i,[x1,x2]) | i == mkCId "Giving" -> GGiving (fg x1) (fg x2)
-      Just (i,[x1,x2]) | i == mkCId "Keeping" -> GKeeping (fg x1) (fg x2)
-      Just (i,[x1,x2]) | i == mkCId "Taking" -> GTaking (fg x1) (fg x2)
-      Just (i,[]) | i == mkCId "Trivial" -> GTrivial 
+      Just (i,[x1]) | i == mkCId "FactAcquisition" -> GFactAcquisition (fg x1)
+      Just (i,[x1]) | i == mkCId "FactConsumption" -> GFactConsumption (fg x1)
+      Just (i,[x1]) | i == mkCId "FactPresumption" -> GFactPresumption (fg x1)
+      Just (i,[x1]) | i == mkCId "ItemAcquisition" -> GItemAcquisition (fg x1)
+      Just (i,[x1]) | i == mkCId "ItemConsumption" -> GItemConsumption (fg x1)
+      Just (i,[x1]) | i == mkCId "ItemPresumption" -> GItemPresumption (fg x1)
 
 
-      _ -> error ("no Core " ++ show t)
+      _ -> error ("no Core1 " ++ show t)
 
 instance Gf GDeed where
+  gf (GBuyDeed x1) = mkApp (mkCId "BuyDeed") [gf x1]
+  gf (GConnectDeed x1 x2 x3) = mkApp (mkCId "ConnectDeed") [gf x1, gf x2, gf x3]
+  gf (GEatDeed x1) = mkApp (mkCId "EatDeed") [gf x1]
+  gf (GGoDeed x1) = mkApp (mkCId "GoDeed") [gf x1]
+  gf (GSellDeed x1) = mkApp (mkCId "SellDeed") [gf x1]
   gf (GSimpleShoppingDeed x1 x2) = mkApp (mkCId "SimpleShoppingDeed") [gf x1, gf x2]
   gf (GSimpleWalkingDeed x1 x2) = mkApp (mkCId "SimpleWalkingDeed") [gf x1, gf x2]
 
   fg t =
     case unApp t of
+      Just (i,[x1]) | i == mkCId "BuyDeed" -> GBuyDeed (fg x1)
+      Just (i,[x1,x2,x3]) | i == mkCId "ConnectDeed" -> GConnectDeed (fg x1) (fg x2) (fg x3)
+      Just (i,[x1]) | i == mkCId "EatDeed" -> GEatDeed (fg x1)
+      Just (i,[x1]) | i == mkCId "GoDeed" -> GGoDeed (fg x1)
+      Just (i,[x1]) | i == mkCId "SellDeed" -> GSellDeed (fg x1)
       Just (i,[x1,x2]) | i == mkCId "SimpleShoppingDeed" -> GSimpleShoppingDeed (fg x1) (fg x2)
       Just (i,[x1,x2]) | i == mkCId "SimpleWalkingDeed" -> GSimpleWalkingDeed (fg x1) (fg x2)
 
@@ -390,6 +412,7 @@ instance Gf GKind where
   gf GCat = mkApp (mkCId "Cat") []
   gf GDog = mkApp (mkCId "Dog") []
   gf GEuro = mkApp (mkCId "Euro") []
+  gf GKnife = mkApp (mkCId "Knife") []
   gf (GPropKind x1 x2) = mkApp (mkCId "PropKind") [gf x1, gf x2]
   gf GWatermelon = mkApp (mkCId "Watermelon") []
 
@@ -399,6 +422,7 @@ instance Gf GKind where
       Just (i,[]) | i == mkCId "Cat" -> GCat 
       Just (i,[]) | i == mkCId "Dog" -> GDog 
       Just (i,[]) | i == mkCId "Euro" -> GEuro 
+      Just (i,[]) | i == mkCId "Knife" -> GKnife 
       Just (i,[x1,x2]) | i == mkCId "PropKind" -> GPropKind (fg x1) (fg x2)
       Just (i,[]) | i == mkCId "Watermelon" -> GWatermelon 
 
@@ -406,30 +430,22 @@ instance Gf GKind where
       _ -> error ("no Kind " ++ show t)
 
 instance Gf GLine where
+  gf (GDid x1) = mkApp (mkCId "Did") [gf x1]
   gf (GFactLine x1) = mkApp (mkCId "FactLine") [gf x1]
   gf (GRuleLine x1) = mkApp (mkCId "RuleLine") [gf x1]
+  gf (GTryTo x1) = mkApp (mkCId "TryTo") [gf x1]
   gf (GYouSee x1) = mkApp (mkCId "YouSee") [gf x1]
 
   fg t =
     case unApp t of
+      Just (i,[x1]) | i == mkCId "Did" -> GDid (fg x1)
       Just (i,[x1]) | i == mkCId "FactLine" -> GFactLine (fg x1)
       Just (i,[x1]) | i == mkCId "RuleLine" -> GRuleLine (fg x1)
+      Just (i,[x1]) | i == mkCId "TryTo" -> GTryTo (fg x1)
       Just (i,[x1]) | i == mkCId "YouSee" -> GYouSee (fg x1)
 
 
       _ -> error ("no Line " ++ show t)
-
-instance Gf GNeed where
-  gf (GConsumption x1) = mkApp (mkCId "Consumption") [gf x1]
-  gf (GPresumption x1) = mkApp (mkCId "Presumption") [gf x1]
-
-  fg t =
-    case unApp t of
-      Just (i,[x1]) | i == mkCId "Consumption" -> GConsumption (fg x1)
-      Just (i,[x1]) | i == mkCId "Presumption" -> GPresumption (fg x1)
-
-
-      _ -> error ("no Need " ++ show t)
 
 instance Gf GNumeral where
   gf (Gnum x1) = mkApp (mkCId "num") [gf x1]
@@ -454,11 +470,15 @@ instance Gf GProp where
       _ -> error ("no Prop " ++ show t)
 
 instance Gf GRule where
-  gf (GWhileRule x1 x2 x3) = mkApp (mkCId "WhileRule") [gf x1, gf x2, gf x3]
+  gf (GGeneralRule2 x1 x2) = mkApp (mkCId "GeneralRule2") [gf x1, gf x2]
+  gf (GGeneralRule3 x1 x2 x3) = mkApp (mkCId "GeneralRule3") [gf x1, gf x2, gf x3]
+  gf (GGeneralRule4 x1 x2 x3 x4) = mkApp (mkCId "GeneralRule4") [gf x1, gf x2, gf x3, gf x4]
 
   fg t =
     case unApp t of
-      Just (i,[x1,x2,x3]) | i == mkCId "WhileRule" -> GWhileRule (fg x1) (fg x2) (fg x3)
+      Just (i,[x1,x2]) | i == mkCId "GeneralRule2" -> GGeneralRule2 (fg x1) (fg x2)
+      Just (i,[x1,x2,x3]) | i == mkCId "GeneralRule3" -> GGeneralRule3 (fg x1) (fg x2) (fg x3)
+      Just (i,[x1,x2,x3,x4]) | i == mkCId "GeneralRule4" -> GGeneralRule4 (fg x1) (fg x2) (fg x3) (fg x4)
 
 
       _ -> error ("no Rule " ++ show t)
@@ -482,22 +502,20 @@ instance Gf GSome where
       _ -> error ("no Some " ++ show t)
 
 instance Gf GSpot where
-  gf GMarket = mkApp (mkCId "Market") []
-  gf GSynagogue = mkApp (mkCId "Synagogue") []
-  gf GT17 = mkApp (mkCId "T17") []
-  gf GTerapija = mkApp (mkCId "Terapija") []
-  gf GUniversity = mkApp (mkCId "University") []
+  gf Gspot_7Tram = mkApp (mkCId "spot_7Tram") []
   gf Gspot_Agroprojekts = mkApp (mkCId "spot_Agroprojekts") []
   gf Gspot_Banuzis = mkApp (mkCId "spot_Banuzis") []
   gf Gspot_CafeRosemary = mkApp (mkCId "spot_CafeRosemary") []
   gf Gspot_DagdasStreet = mkApp (mkCId "spot_DagdasStreet") []
   gf Gspot_Deficits = mkApp (mkCId "spot_Deficits") []
+  gf Gspot_DzirnavuTurgeneva = mkApp (mkCId "spot_DzirnavuTurgeneva") []
   gf Gspot_GoodwillStudio = mkApp (mkCId "spot_GoodwillStudio") []
   gf Gspot_Idioma = mkApp (mkCId "spot_Idioma") []
   gf Gspot_Latgalite = mkApp (mkCId "spot_Latgalite") []
   gf Gspot_MazaKrastaStreet = mkApp (mkCId "spot_MazaKrastaStreet") []
   gf Gspot_OutsideTheUzbekPlace = mkApp (mkCId "spot_OutsideTheUzbekPlace") []
   gf Gspot_Pushkin11 = mkApp (mkCId "spot_Pushkin11") []
+  gf Gspot_RedHouse = mkApp (mkCId "spot_RedHouse") []
   gf Gspot_SpekaStreet = mkApp (mkCId "spot_SpekaStreet") []
   gf Gspot_Spikeri = mkApp (mkCId "spot_Spikeri") []
   gf Gspot_SviestaPika = mkApp (mkCId "spot_SviestaPika") []
@@ -526,6 +544,7 @@ instance Gf GSpot where
   gf Gspot_TheSoyShop = mkApp (mkCId "spot_TheSoyShop") []
   gf Gspot_TheSpikeriPromenade = mkApp (mkCId "spot_TheSpikeriPromenade") []
   gf Gspot_TheSynagogueMemorial = mkApp (mkCId "spot_TheSynagogueMemorial") []
+  gf Gspot_TheSynagogueMemorialFar = mkApp (mkCId "spot_TheSynagogueMemorialFar") []
   gf Gspot_TheTunnel = mkApp (mkCId "spot_TheTunnel") []
   gf Gspot_TheVegetablePavilion = mkApp (mkCId "spot_TheVegetablePavilion") []
   gf Gspot_TheVeraMuhinasMemorialHouse = mkApp (mkCId "spot_TheVeraMuhinasMemorialHouse") []
@@ -533,22 +552,20 @@ instance Gf GSpot where
 
   fg t =
     case unApp t of
-      Just (i,[]) | i == mkCId "Market" -> GMarket 
-      Just (i,[]) | i == mkCId "Synagogue" -> GSynagogue 
-      Just (i,[]) | i == mkCId "T17" -> GT17 
-      Just (i,[]) | i == mkCId "Terapija" -> GTerapija 
-      Just (i,[]) | i == mkCId "University" -> GUniversity 
+      Just (i,[]) | i == mkCId "spot_7Tram" -> Gspot_7Tram 
       Just (i,[]) | i == mkCId "spot_Agroprojekts" -> Gspot_Agroprojekts 
       Just (i,[]) | i == mkCId "spot_Banuzis" -> Gspot_Banuzis 
       Just (i,[]) | i == mkCId "spot_CafeRosemary" -> Gspot_CafeRosemary 
       Just (i,[]) | i == mkCId "spot_DagdasStreet" -> Gspot_DagdasStreet 
       Just (i,[]) | i == mkCId "spot_Deficits" -> Gspot_Deficits 
+      Just (i,[]) | i == mkCId "spot_DzirnavuTurgeneva" -> Gspot_DzirnavuTurgeneva 
       Just (i,[]) | i == mkCId "spot_GoodwillStudio" -> Gspot_GoodwillStudio 
       Just (i,[]) | i == mkCId "spot_Idioma" -> Gspot_Idioma 
       Just (i,[]) | i == mkCId "spot_Latgalite" -> Gspot_Latgalite 
       Just (i,[]) | i == mkCId "spot_MazaKrastaStreet" -> Gspot_MazaKrastaStreet 
       Just (i,[]) | i == mkCId "spot_OutsideTheUzbekPlace" -> Gspot_OutsideTheUzbekPlace 
       Just (i,[]) | i == mkCId "spot_Pushkin11" -> Gspot_Pushkin11 
+      Just (i,[]) | i == mkCId "spot_RedHouse" -> Gspot_RedHouse 
       Just (i,[]) | i == mkCId "spot_SpekaStreet" -> Gspot_SpekaStreet 
       Just (i,[]) | i == mkCId "spot_Spikeri" -> Gspot_Spikeri 
       Just (i,[]) | i == mkCId "spot_SviestaPika" -> Gspot_SviestaPika 
@@ -577,6 +594,7 @@ instance Gf GSpot where
       Just (i,[]) | i == mkCId "spot_TheSoyShop" -> Gspot_TheSoyShop 
       Just (i,[]) | i == mkCId "spot_TheSpikeriPromenade" -> Gspot_TheSpikeriPromenade 
       Just (i,[]) | i == mkCId "spot_TheSynagogueMemorial" -> Gspot_TheSynagogueMemorial 
+      Just (i,[]) | i == mkCId "spot_TheSynagogueMemorialFar" -> Gspot_TheSynagogueMemorialFar 
       Just (i,[]) | i == mkCId "spot_TheTunnel" -> Gspot_TheTunnel 
       Just (i,[]) | i == mkCId "spot_TheVegetablePavilion" -> Gspot_TheVegetablePavilion 
       Just (i,[]) | i == mkCId "spot_TheVeraMuhinasMemorialHouse" -> Gspot_TheVeraMuhinasMemorialHouse 
@@ -645,14 +663,20 @@ instance Gf GSub1000000 where
 
       _ -> error ("no Sub1000000 " ++ show t)
 
+instance Show GNeed
+
+instance Gf GNeed where
+  gf _ = undefined
+  fg _ = undefined
+
+
+
+instance Show GWish
+
 instance Gf GWish where
-  gf (GDeedWish x1) = mkApp (mkCId "DeedWish") [gf x1]
-
-  fg t =
-    case unApp t of
-      Just (i,[x1]) | i == mkCId "DeedWish" -> GDeedWish (fg x1)
+  gf _ = undefined
+  fg _ = undefined
 
 
-      _ -> error ("no Wish " ++ show t)
 
 

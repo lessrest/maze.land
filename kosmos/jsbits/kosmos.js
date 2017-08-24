@@ -11,3 +11,10 @@ function fetchBase64(url, callback) {
       r.readAsDataURL(x)
     })
 }
+
+function minimap(xs) {
+  console.log(xs)
+  setTimeout(function () {
+    startMinimap(xs)
+  }, 1000)
+}

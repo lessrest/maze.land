@@ -53,4 +53,6 @@ in {
     spot_TheVegetablePavilion = mkSpot "the vegetable pavilion";
     spot_TheFishPavilion = mkSpot "the fish pavilion";
     spot_OutsideTheUzbekPlace = mkSpot "outside the Uzbek restaurant";
+    spot_DzirnavuTurgeneva = mkSpot "the Dzirnavu-Turgeņeva crossing";
+    spot_RedHouse = mkSpot "the red house";
 }
