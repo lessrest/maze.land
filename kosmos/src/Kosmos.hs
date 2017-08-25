@@ -22,7 +22,6 @@ module Kosmos
   , playerSpot
   , minimap
   , flyTo
-  , fireResizeEvent
   , parseSpot
   , tryTo
   , factLine
@@ -35,27 +34,27 @@ import PGF (PGF)
 import qualified PGF as PGF
 import qualified PGF.Internal
 
-import Data.Foldable (Foldable, foldMap, toList)
 import Control.Monad (msum, guard)
-import Data.Maybe (mapMaybe, fromJust, isJust)
-import PGF.Lexing (capitInit)
-import Data.Monoid (First (..))
-
-import qualified Data.List as List
+import Data.Foldable (Foldable, foldMap, toList)
 import Data.List (find, elem)
+import Data.Maybe (mapMaybe, fromJust, isJust)
+import Data.Monoid (First (..))
+import PGF.Lexing (capitInit)
+import qualified Data.List as List
 
 #ifdef __GHCJS__
+import Data.ByteString.Lazy (fromStrict)
+import Data.JSString ()
+import Data.Text (Text)
 import GHCJS.Foreign.Callback
 import GHCJS.Types (JSVal)
-import Data.JSString ()
+
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Base64 as BS64
 import qualified Data.JSString as JS
 import qualified Data.JSString.Text as JS
-import qualified Data.Text.Encoding as Text
 import qualified Data.Text as Text
-import Data.Text (Text)
-import qualified Data.ByteString as BS
-import Data.ByteString.Lazy (fromStrict)
-import qualified Data.ByteString.Base64 as BS64
+import qualified Data.Text.Encoding as Text
 
 foreign import javascript interruptible
   "fetchBase64($1, $c);"
@@ -69,22 +68,7 @@ foreign import javascript
   "flyTo($1, $2);"
   flyTo :: Float -> Float -> IO ()
 
-foreign import javascript
-  "mymap.resize();"
-  fireResizeEvent :: IO ()
-
 #endif
-
--- Some initial assumptions using the "Riga" game grammar.
-example1 :: PGF -> [GFact]
-example1 g = grok g
-  [ "Terapija is north from the central market"
-  , "four big watermelons are in the central market"
-  , "rule: when the player is in the central market "
-      ++ "if you spend one euro then you get one watermelon"
-  , "the player is in the central market"
-  , "you have three euros"
-  ]
 
 lastadijaSpots :: PGF -> IO [GFact]
 lastadijaSpots g =
@@ -165,19 +149,6 @@ expand = foldMap $
          ]]
       , [GSpotHasDoor src how dst]
       )
-
-    -- -- Expand `while' rules to core rules.
-    -- GRuleApplies (GWhileRule fact deed boon) ->
-    --   ([ Keep fact :
-    --        Keep (GRuleApplies (GWhileRule fact deed boon)) :
-    --         (case deed of
-    --            GConsumption need ->
-    --              Take (GYouHaveItem need) :
-    --                (Give (GYouHaveItem boon) : [])
-    --            GPresumption need ->
-    --              Keep (GYouHaveItem need) :
-    --                (Give (GYouHaveItem boon) : []))
-    --    ], [GRuleApplies (GWhileRule fact deed boon)])
 
     rule@(GRuleApplies (GGeneralRule2 a b)) ->
       ([map core1 [a, b]], [rule])
@@ -322,18 +293,6 @@ grok g ss =
   let xs = map (\x -> (x, parseFact g x)) ss
   in map (\(s, x) -> maybe (error s) id x) $ xs
 
--- run :: PGF -> [GFact] -> IO ()
--- run g x = do
---   case expand x of
---     Left a -> mapM_ putStrLn (yell g a)
---     Right (a, b) -> do
---       putStrLn "* Cores:\n"
---       yellSet g a
---       putStrLn "* Facts:\n"
---       yellSet g b
---       putStrLn "* Explore:\n"
---       mapM_ (\(x, _) -> putStrLn "* Option\n" >> mapM_ putStrLn (yell g x)) (explore b a)
-
 yellSet :: (Foldable t, Gf a, Show a) => PGF -> t a -> IO ()
 yellSet g xs =
   mapM_ ((>> putStrLn "") . mapM_ putStrLn) (map (yell g) (toList xs))
@@ -392,7 +351,9 @@ interpret :: GDeed -> Core -> Bool
 interpret = \case
   GBuyDeed item -> elem (Give (GYouHaveItem item))
   GEatDeed item -> elem (Take (GYouHaveItem item))
-  GSellDeed item -> \x -> elem (Take (GYouHaveItem item)) x && hasSome (\case { Give (GYouHaveItem _) -> True; _ -> False }) x
+  GSellDeed item -> \x ->
+    elem (Take (GYouHaveItem item)) x
+      && hasSome (\case { Give (GYouHaveItem _) -> True; _ -> False }) x
   GGoDeed door ->
     hasSome $ \case
       Keep (GSpotHasDoor _ x _) -> back x == door
