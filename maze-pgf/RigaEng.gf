@@ -2,12 +2,15 @@ concrete RigaEng of Riga = MazeEng **
   open SyntaxEng, ParadigmsEng
 in {
   flags coding = utf8;
-  oper
-    mkSpot : Str -> NP;
-    mkSpot s = mkNP (mkPN s);
 
-    mkTheSpots : Str -> NP;
-    mkTheSpots s = mkNP thePl_Det (mkN s);
+  oper mkSpot : Str -> Spot =
+    \s -> lin Spot { np = mkNP (mkPN s); prep = mkPrep "at" };
+
+  oper mkSpotPrep : Str -> Prep -> Spot =
+    \s, prep -> lin Spot { np = mkNP (mkPN s); prep = prep };
+
+  oper mkTheSpots : Str -> Spot;
+  oper mkTheSpots s = lin Spot { np = mkNP thePl_Det (mkN s); prep = mkPrep "at" };
 
   lin
     spot_Agroprojekts = mkSpot "\"Agroprojekts\"";
@@ -24,7 +27,7 @@ in {
     spot_Spikeri = mkSpot "Spikeri";
     spot_SviestaPika = mkSpot "Sviesta pika";
     spot_TheAbrenesStreetBusStation = mkSpot "the Abrenes Street bus station";
-    spot_TheBookShopsJanusAndGora = mkNP thePl_Det (mkCN (mkN "book shop") (mkNP and_Conj (mkNP (mkPN "\"Janus\"")) (mkNP (mkPN "\"Gora\""))));
+    spot_TheBookShopsJanusAndGora = { prep = in_Prep; np = mkNP thePl_Det (mkCN (mkN "book shop") (mkNP and_Conj (mkNP (mkPN "\"Janus\"")) (mkNP (mkPN "\"Gora\"")))) };
     spot_TheBusStation = mkSpot "the bus station";
     spot_TheCentralMarketStands = mkTheSpots "central market stand";
     spot_TheCentralMarketShoemaker = mkSpot "the central market shoemaker";
@@ -52,7 +55,7 @@ in {
     spot_TheEmptyPavilion = mkSpot "the empty pavilion";
     spot_TheVegetablePavilion = mkSpot "the vegetable pavilion";
     spot_TheFishPavilion = mkSpot "the fish pavilion";
-    spot_OutsideTheUzbekPlace = mkSpot "outside the Uzbek restaurant";
+    spot_OutsideTheUzbekPlace = mkSpotPrep "the Uzbek restaurant" (mkPrep "by");
     spot_DzirnavuTurgeneva = mkSpot "the Dzirnavu-Turgeņeva crossing";
     spot_RedHouse = mkSpot "the red house";
 }

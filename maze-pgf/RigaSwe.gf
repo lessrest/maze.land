@@ -3,11 +3,11 @@ concrete RigaSwe of Riga = MazeSwe **
 in {
   flags coding = utf8;
   oper
-    mkSpot : Str -> NP;
-    mkSpot s = mkNP (mkPN s);
+    mkSpot : Str -> Spot;
+    mkSpot s = lin Spot { prep = mkPrep "vid"; np = mkNP (mkPN s) };
 
-    mkTheSpots : Str -> NP;
-    mkTheSpots s = mkNP thePl_Det (mkN s);
+    mkTheSpots : Str -> Spot;
+    mkTheSpots s = lin Spot { prep = mkPrep "vid"; np = mkNP thePl_Det (mkN s) };
 
   lin
     spot_Agroprojekts = mkSpot "\"Agroprojekts\"";
@@ -24,7 +24,7 @@ in {
     spot_Spikeri = mkSpot "Spikeri";
     spot_SviestaPika = mkSpot "Sviesta pika";
     spot_TheAbrenesStreetBusStation = mkSpot "busstationen på Abrenesgatan";
-    spot_TheBookShopsJanusAndGora = mkNP thePl_Det (mkCN (mkN "bokhandlarna") (mkNP and_Conj (mkNP (mkPN "\"Janus\"")) (mkNP (mkPN "\"Gora\""))));
+    spot_TheBookShopsJanusAndGora = { prep = mkPrep "vid"; np = mkNP thePl_Det (mkCN (mkN "bokhandlarna") (mkNP and_Conj (mkNP (mkPN "\"Janus\"")) (mkNP (mkPN "\"Gora\"")))) };
     spot_TheBusStation = mkSpot "busstationen";
     spot_TheCentralMarketStands = mkTheSpots "centralmarknadens stånd";
     spot_TheCentralMarketShoemaker = mkSpot "centralmarknadens skomakare";

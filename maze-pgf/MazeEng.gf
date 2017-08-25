@@ -47,7 +47,7 @@ in {
     SellDeed item = mkVP (mkV2 (mkV "sell")) item;
 
     ConnectDeed src how dst =
-      mkVP (mkV2V (mkV "make") noPrep to_Prep) dst (mkVP (mkAdv how.prep src));
+      mkVP (mkV2V (mkV "make") noPrep to_Prep) dst.np (mkVP (mkAdv how.prep src.np));
 
     SimpleShoppingDeed a b =
       mkVP

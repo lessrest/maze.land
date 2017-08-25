@@ -3,7 +3,7 @@ incomplete concrete MazeI of Maze = {
     Line = { s : Str };
     Fail = Utt;
 
-    Spot = NP;
+    Spot = { np : NP; prep: Prep };
     Door = { prep : Prep; adv : Adv };
     Item = NP;
 
@@ -33,38 +33,25 @@ incomplete concrete MazeI of Maze = {
 
     PropKind prop kind = mkCN prop kind;
 
-    SpotHasDoor dst how src = mkCl dst (mkAdv how.prep src);
-    SpotHasItem spot item = mkCl item (mkAdv in_Prep spot);
+    SpotHasDoor dst how src = mkCl dst.np (mkAdv how.prep src.np);
+    SpotHasItem spot item = mkCl item (mkAdv spot.prep spot.np);
     YouHaveItem item = mkCl you_NP have_V2 item;
 
     YouSee item  = mkUtt (mkCl you_NP see_V2 item);
     FactLine fact = mkUtt fact;
-
-    -- Rule1 deed = deed;
-    -- Rule2 deed1 deed2 =
-    --   mkS and_Conj
-    --     (mkS (mkCl you_NP can_VV deed1))
-    --     (mkS (mkCl you_NP can_VV deed2));
-
-    -- LocalRule1 spot deed =
-    --   mkS (mkAdv in_Prep spot) (mkS (mkCl you_NP can_VV deed));
-
-    -- Walk door src dst
-    --   = mkImp
-    --       (mkVP
-    --         (mkVP (mkVP walk_V) (mkAdv door src))
-    --         (mkAdv to_Prep dst));
+    DoorLine door spot =
+      mkUtt (mkCl spot.np door.adv);
 
     DoorConflict src dst fst snd
       -- "T17 is both north of Terapija and south of Terapija."
       = mkUtt
-         (mkCl src
+         (mkCl src.np
            (mkAdv both7and_DConj
-             (mkAdv fst.prep dst)
-             (mkAdv snd.prep dst)));
+             (mkAdv fst.prep dst.np)
+             (mkAdv snd.prep dst.np)));
 
     SimpleWalkingDeed _ b =
-      mkVP (mkVP go_V) (mkAdv to_Prep b);
+      mkVP (mkVP go_V) (mkAdv to_Prep b.np);
 
     BuyDeed item = mkVP buy_V2 item;
     EatDeed item = mkVP eat_V2 item;

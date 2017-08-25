@@ -16,5 +16,5 @@ function minimap(xs) {
   console.log(xs)
   setTimeout(function () {
     startMinimap(xs)
-  }, 1000)
+  }, 2000)
 }

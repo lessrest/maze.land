@@ -128,6 +128,7 @@ data GKind =
 
 data GLine =
    GDid GDeed 
+ | GDoorLine GDoor GSpot 
  | GFactLine GFact 
  | GRuleLine GRule 
  | GTryTo GDeed 
@@ -231,10 +232,6 @@ data GSub1000000 =
  | Gpot3 GSub1000 
  | Gpot3plus GSub1000 GSub1000 
   deriving (Show, Eq, Ord)
-
-data GNeed
-
-data GWish
 
 
 instance Gf GCore1 where
@@ -431,6 +428,7 @@ instance Gf GKind where
 
 instance Gf GLine where
   gf (GDid x1) = mkApp (mkCId "Did") [gf x1]
+  gf (GDoorLine x1 x2) = mkApp (mkCId "DoorLine") [gf x1, gf x2]
   gf (GFactLine x1) = mkApp (mkCId "FactLine") [gf x1]
   gf (GRuleLine x1) = mkApp (mkCId "RuleLine") [gf x1]
   gf (GTryTo x1) = mkApp (mkCId "TryTo") [gf x1]
@@ -439,6 +437,7 @@ instance Gf GLine where
   fg t =
     case unApp t of
       Just (i,[x1]) | i == mkCId "Did" -> GDid (fg x1)
+      Just (i,[x1,x2]) | i == mkCId "DoorLine" -> GDoorLine (fg x1) (fg x2)
       Just (i,[x1]) | i == mkCId "FactLine" -> GFactLine (fg x1)
       Just (i,[x1]) | i == mkCId "RuleLine" -> GRuleLine (fg x1)
       Just (i,[x1]) | i == mkCId "TryTo" -> GTryTo (fg x1)
@@ -662,21 +661,5 @@ instance Gf GSub1000000 where
 
 
       _ -> error ("no Sub1000000 " ++ show t)
-
-instance Show GNeed
-
-instance Gf GNeed where
-  gf _ = undefined
-  fg _ = undefined
-
-
-
-instance Show GWish
-
-instance Gf GWish where
-  gf _ = undefined
-  fg _ = undefined
-
-
 
 

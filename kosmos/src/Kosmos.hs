@@ -22,8 +22,10 @@ module Kosmos
   , playerSpot
   , minimap
   , flyTo
+  , fireResizeEvent
   , parseSpot
   , tryTo
+  , factLine
   ) where
 
 import Debug.Trace
@@ -66,6 +68,10 @@ foreign import javascript
 foreign import javascript
   "flyTo($1, $2);"
   flyTo :: Float -> Float -> IO ()
+
+foreign import javascript
+  "mymap.resize();"
+  fireResizeEvent :: IO ()
 
 #endif
 
@@ -120,6 +126,13 @@ relevantFacts facts =
           p _ = False
       in filter p facts
     _ -> []
+
+factLine :: GFact -> GLine
+factLine = \case
+  GSpotHasDoor dst how _ ->
+    GDoorLine how dst
+  x ->
+    GFactLine x
 
 infer :: GFact -> [GFact]
 infer = \case
@@ -230,7 +243,7 @@ check xs =
                   -> error $ "you can go to " ++ show src1 ++ " from both " ++ show dst1 ++ " and " ++ show dst2 ++ " via " ++ show how1
               GSpotHasDoor src2 how2 dst2
                 | (src1 /= src2 && dst1 == dst2) && how1 == how2
-                  -> error $ "you can come from " ++ show dst1 ++ " via " ++ show how1 ++ " ti both" ++ show src1 ++ " and " ++ show src2
+                  -> error $ "you can come from " ++ show dst1 ++ " via " ++ show how1 ++ " both" ++ show src1 ++ " and " ++ show src2
               _ -> Nothing) xs
     bad _ = Nothing
 

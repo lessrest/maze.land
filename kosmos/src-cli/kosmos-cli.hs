@@ -39,6 +39,8 @@ import Kosmos
   , fetchBytes
   , parseSpot
   , tryTo
+  , factLine
+  , fireResizeEvent
   )
 
 type Grammar = Kosmos.PGF
@@ -73,6 +75,10 @@ main = do
               (("href" =: "https://api.mapbox.com/mapbox-gl-js/v0.38.0/mapbox-gl.css")
                 <> ("rel" =: "stylesheet"))
               blank
+            elAttr "link"
+              (("href" =: "font.css")
+                <> ("rel" =: "stylesheet"))
+              blank
             ignore (elDynHtml' "style" (pure (decodeUtf8 css))))
         (do play g genesis tales')
 
@@ -101,9 +107,14 @@ main = do
           elDynAttr "video" (worldVideoAttrs <$> world) blank
           el "vignette" blank
 
-          el "minimap-screen" $ do
+          (x, bigMinimap) <- elDynAttr' "minimap-screen" (bigMinimapAttrs <$> bigMinimap) $ do
             el "minimap" blank
             el "minimap-glass" blank
+            toggle False (domEvent Click x)
+
+          performEvent $
+            fmap (\x -> liftIO (maybe (pure ()) (uncurry flyTo) x))
+              (tag (current (fmap (fmap snd . join . fmap dataFor . playerSpot) world)) (updated bigMinimap))
 
           el "place" . dynText $
             join $ fmap (maybe (pure "?") saySpot) $ fmap playerSpot world
@@ -127,8 +138,8 @@ main = do
     showLoadingFailed = mainWidgetWithCss css (el "div" $ text "Loading failed.")
 
     showRelevantFacts g lingo world = do
-      ignore . simpleList (fmap relevantFacts world) $ \fact -> do
-        el "p" $ dynText ((translate g) <$> fact <*> lingo)
+      ignore . simpleList (fmap (map factLine . relevantFacts) world) $ \x -> do
+        el "p" $ dynText (fmap (<> ".") ((translate g) <$> x <*> lingo))
 
     showOptions g lingo options = fmap (switch . current . fmap leftmost) x
       where
@@ -300,6 +311,9 @@ worldVideoAttrs xs =
           , "autoplay" =: "autoplay"
           ]
 
+bigMinimapAttrs False = mempty
+bigMinimapAttrs True = "class" =: "big"
+
 css = encodeUtf8 . pack . unlines $
   [ "video { height: 400px }"
   , "html, body, button, select, input { font: " ++ font ++ " }"
@@ -318,14 +332,13 @@ css = encodeUtf8 . pack . unlines $
   , "ul { list-style-type: none; padding: 0 }"
   , "place { position: absolute; left: 1em; top: 1em }"
   , "place { padding: .25rem .5rem; }"
-  , "place { color: ivory; font-weight: bold; font-family: helvetica, sans-serif; }"
+  , "place { color: ivory; font-weight: bold; }"
   , "place { transform: rotate(-2deg); }"
   , "place { font-size: 1.25rem; border-radius: 6px; }"
   , "minimap { display: block; opacity: 0.9 }"
-  , "minimap, minimap-screen { height: 300px; width: 300px; z-index: 1 }"
+  , "minimap, minimap-screen { height: 400px; width: 400px; z-index: 1 }"
   , "minimap, minimap-screen { border-radius: 1em; }"
   , "minimap-screen { position: absolute !important; bottom: 2em; left: 2em }"
-  , "minimap-screen { pointer-events: none }"
   , "minimap-glass { position: relative; top: -100%; height: 100%; }"
   , "minimap-glass { display: block; opacity: 0.4; z-index: 2 }"
   , "minimap-glass { background-image: url(\"https://www.transparenttextures.com/patterns/little-pluses.png\") }"
@@ -343,6 +356,7 @@ css = encodeUtf8 . pack . unlines $
   , "rulebox input { background: rgba(0, 0, 0, 0); color: ivory; }"
   , "rulebox input { border: 1px solid currentcolor; }"
   , "* { box-sizing: border-box }"
+  , "minimap-screen.big, minimap-screen.big minimap { height: 800px; width: 1000px; }"
   ]
 
 font = "22px/32px \"fantasque sans mono\""
